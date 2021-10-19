@@ -2,5 +2,5 @@
 Teammates:
     Edward Johnson
     Neal Lemon
-    Alex Miller
-    Ryan Paynter
+    Alex Millerx
+    Ryan Payn
