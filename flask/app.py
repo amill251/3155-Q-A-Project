@@ -63,7 +63,6 @@ def get_db(DATABASE):
         db = g._database = sqlite3.connect(DATABASE)
     return db
 
-@app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
