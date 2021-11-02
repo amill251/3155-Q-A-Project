@@ -19,7 +19,7 @@ def page_routes(app):
     #Routes for Pages
     @app.route("/")
     def index():
-        return render_template("index.html")
+        return render_template("feed.html")
 
 def api_routes(app):
     #Routes for Pages
