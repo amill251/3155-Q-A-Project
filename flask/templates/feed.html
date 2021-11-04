@@ -17,87 +17,61 @@
 <body class="bg-light">
     <nav class="navbar navbar-dark bg-dark">
         <span class="navbar-brand mb-0 h1">3155-Q-A-Project</span>
+        <ul class="nav nav-pills">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Active</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Link</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Link</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled">Disabled</a>
+          </li>
+        </ul>
     </nav>
     <div class="container">
+      <div class="justify-content-center">
         <div class="row">
             <div class="col-12">
                 <div class="h-100px card">
                     <h1> Welcome to your feed page!</h1>
                 </div>
             </div>
+          </div>  
         </div>
-        <div class="row">
-            <div class="col-md-8">
-                <div class="media g-mb-30 media-comment">
-                    <img class="d-flex g-width-50 g-height-50 rounded-circle g-mt-3 g-mr-15" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Image Description">
-                    <div class="media-body u-shadow-v18 g-bg-secondary g-pa-30">
-                      <div class="g-mb-15">
-                        <h5 class="h5 g-color-gray-dark-v1 mb-0">John Doe</h5>
-                        <span class="g-color-gray-dark-v4 g-font-size-12">5 days ago</span>
+        <div class="container mt-5">
+          <div class="d-flex justify-content-center row">
+              <div class="col-md-8">
+                  <div class="d-flex flex-column comment-section" id="myGroup">
+                      <div class="bg-white p-2">
+                          <div class="d-flex flex-row user-info"><img class="rounded-circle" src="https://i.imgur.com/RpzrMR2.jpg" width="40">
+                              <div class="d-flex flex-column justify-content-start ml-2"><span class="d-block font-weight-bold name">Marry Andrews</span><span class="date text-black-50">Shared publicly - Jan 2020</span></div>
+                          </div>
+                          <div class="mt-2">
+                              <p class="comment-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                          </div>
                       </div>
-                
-                      <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue
-                        felis in faucibus ras purus odio, vestibulum in vulputate at, tempus viverra turpis.</p>
-                
-                      <ul class="list-inline d-sm-flex my-0">
-                        <li class="list-inline-item g-mr-20">
-                          <a class="u-link-v5 g-color-gray-dark-v4 g-color-primary--hover" href="#!">
-                            <i class="fa fa-thumbs-up g-pos-rel g-top-1 g-mr-3"></i>
-                            178
-                          </a>
-                        </li>
-                        <li class="list-inline-item g-mr-20">
-                          <a class="u-link-v5 g-color-gray-dark-v4 g-color-primary--hover" href="#!">
-                            <i class="fa fa-thumbs-down g-pos-rel g-top-1 g-mr-3"></i>
-                            34
-                          </a>
-                        </li>
-                        <li class="list-inline-item ml-auto">
-                          <a class="u-link-v5 g-color-gray-dark-v4 g-color-primary--hover" href="#!">
-                            <i class="fa fa-reply g-pos-rel g-top-1 g-mr-3"></i>
-                            Reply
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                </div>
-            </div>
-        
-            <div class="col-md-8">
-                <div class="media g-mb-30 media-comment">
-                    <img class="d-flex g-width-50 g-height-50 rounded-circle g-mt-3 g-mr-15" src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="Image Description">
-                    <div class="media-body u-shadow-v18 g-bg-secondary g-pa-30">
-                      <div class="g-mb-15">
-                        <h5 class="h5 g-color-gray-dark-v1 mb-0">John Doe</h5>
-                        <span class="g-color-gray-dark-v4 g-font-size-12">5 days ago</span>
+                      <div class="bg-white p-2">
+                          <div class="d-flex flex-row fs-12">
+                              <div class="like p-2 cursor"><i class="fa fa-thumbs-o-up"></i><span class="ml-1">Like</span></div>
+                              <div class="like p-2 cursor action-collapse" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-1" href="#collapse-1"><i class="fa fa-commenting-o"></i><span class="ml-1">Comment</span></div>
+                              <div class="like p-2 cursor action-collapse" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-2" href="#collapse-2"><i class="fa fa-share"></i><span class="ml-1">Share</span></div>
+                          </div>
                       </div>
-                
-                      <p>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue
-                        felis in faucibus ras purus odio, vestibulum in vulputate at, tempus viverra turpis.</p>
-                
-                      <ul class="list-inline d-sm-flex my-0">
-                        <li class="list-inline-item g-mr-20">
-                          <a class="u-link-v5 g-color-gray-dark-v4 g-color-primary--hover" href="#!">
-                            <i class="fa fa-thumbs-up g-pos-rel g-top-1 g-mr-3"></i>
-                            178
-                          </a>
-                        </li>
-                        <li class="list-inline-item g-mr-20">
-                          <a class="u-link-v5 g-color-gray-dark-v4 g-color-primary--hover" href="#!">
-                            <i class="fa fa-thumbs-down g-pos-rel g-top-1 g-mr-3"></i>
-                            34
-                          </a>
-                        </li>
-                        <li class="list-inline-item ml-auto">
-                          <a class="u-link-v5 g-color-gray-dark-v4 g-color-primary--hover" href="#!">
-                            <i class="fa fa-reply g-pos-rel g-top-1 g-mr-3"></i>
-                            Reply
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                </div>
-            </div>
+                      <div id="collapse-1" class="bg-light p-2 collapse" data-parent="#myGroup">
+                          <div class="d-flex flex-row align-items-start"><img class="rounded-circle" src="https://i.imgur.com/RpzrMR2.jpg" width="40"><textarea class="form-control ml-1 shadow-none textarea"></textarea></div>
+                          <div class="mt-2 text-right"><button class="btn btn-primary btn-sm shadow-none" type="button">Post comment</button><button class="btn btn-outline-primary btn-sm ml-1 shadow-none" type="button">Cancel</button></div>
+                      </div>
+                      <div id="collapse-2" class="bg-light p-2 collapse" data-parent="#myGroup">
+                          <div class="d-flex flex-row align-items-start"><i class="fa fa-facebook border p-3 rounded mr-1"></i><i class="fa fa-twitter border p-3 rounded mr-1"></i><i class="fa fa-linkedin border p-3 rounded mr-1"></i><i class="fa fa-instagram border p-3 rounded mr-1"></i><i class="fa fa-dribbble border p-3 rounded mr-1"></i> <i class="fa fa-pinterest-p border p-3 rounded mr-1"></i> </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
         </div>
         </div>
 </body>
