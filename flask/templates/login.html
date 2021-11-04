@@ -35,7 +35,7 @@ button {
         margin: 8px 0;  
         padding: 12px 20px;   
         display: inline-block;   
-        border: 2px solid green;   
+        border: 2px solid goldenrod;   
         box-sizing: border-box;   
     }  
  button:hover {   
@@ -50,67 +50,25 @@ button {
      
  .container {   
         padding: 25px;   
-        background-color: lightblue;  
+        background-color: darkgreen;  
     }   
   </style>
 </head>
 
 <body class="bg-light">
-    <nav class="navbar navbar-dark bg-dark">
-        <span class="navbar-brand mb-0 h1">3155-Q-A-Project</span>
-    </nav>
-    <div class="container"></div>
-        <div class="row">
-            <div class="col-12">
-                <div class="h-100px card">
-                    <h1>
-                        Welcome to the login page!
-                    </h1>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <div class="h-100px card">
-                    <p>
-                        This is an auto-column, these 3 columns are on the same row
-                    </p>
-                </div>
-            </div>
-            <div class="col">
-                <div class="h-100px card">
-                    <p>
-                        Same row, column 2
-                    </p>
-                </div>
-            </div>
-            <div class="col">
-                <div class="h-100px card">
-                    <p>Same row, column 3</p>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-6">
-                <div class="h-100px card">
-                    <p>These are columns with a width set to 6</p>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="h-100px card">
-                    <p>Bootstrap sets column width by col-1, col-2, col-3, ...col-12</p>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-6"></div>
-            <div class="col-6">
-                <div class="h-100px card">
-                    <p>Typical placement involves a container -> row -> column</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <center> <h1> Student Login Form </h1> </center>   
+    <form>  
+        <div class="container">   
+            <a href="#"> Sign in</a>
+            <div></div>
+            <label>Username : </label>   
+            <input type="text" placeholder="Enter Username" name="username" required>  
+            <label>Password : </label>   
+            <input type="password" placeholder="Enter Password" name="password" required>  
+            <button type="submit">Login</button>      
+            Forgot <a href="#"> password? </a>   
+        </div>   
+    </form>     
 </body>
 
 </html>
