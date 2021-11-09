@@ -47,17 +47,23 @@ def api_routes(app):
         con.close()
         return jsonify(response='Success')
 
-    @app.route("/api/getusers", methods=["GET", "POST"])
+    @app.route("/api/getusers", methods=["GET"])
     def getusers():
         con = sqlite3.connect(DATABASE_PATH)
-        # con.row_factory = sqlite3.Row
+        con.row_factory = sqlite3.Row
         
         cur = con.cursor()
         cur.execute("select * from users")
-        
+
         rows = cur.fetchall()
+        response = dict()
+        response['data'] = []
+
+        for row in rows:
+            response['data'].append(dict(row))
+        
         con.close()
-        return jsonify(data=rows)
+        return jsonify(response)
 
 
 def config(app, test_config):
