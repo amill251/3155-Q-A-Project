@@ -19,16 +19,13 @@
         <span class="navbar-brand mb-0 h1">3155-Q-A-Project</span>
         <ul class="nav nav-pills">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Active</a>
+            <a class="nav-link active" aria-current="page" href="#">Feed Page</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
+            <a class="nav-link" href="#">Create a Post</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled">Disabled</a>
+            <a class="nav-link" href="#">Logout</a>
           </li>
         </ul>
     </nav>
@@ -56,9 +53,10 @@
                       </div>
                       <div class="bg-white p-2">
                           <div class="d-flex flex-row fs-12">
-                              <div class="like p-2 cursor"><i class="fa fa-thumbs-o-up"></i><span class="ml-1">Like</span></div>
-                              <div class="like p-2 cursor action-collapse" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-1" href="#collapse-1"><i class="fa fa-commenting-o"></i><span class="ml-1">Comment</span></div>
-                              <div class="like p-2 cursor action-collapse" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-2" href="#collapse-2"><i class="fa fa-share"></i><span class="ml-1">Share</span></div>
+                              <button type="button" class="btn btn-outline-success">Like</button>
+                              <button type="button" class="btn btn-outline-info like p-2 cursor action-collapse" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-1" href="#collapse-1"><i class="fa fa-commenting-o"></i><span class="ml-1">Comment</span></button>
+                              <button type="button" class="btn btn-outline-secondary">Edit</button>
+                              <button type="button" class="btn btn-outline-danger">Delete</button>
                           </div>
                       </div>
                       <div id="collapse-1" class="bg-light p-2 collapse" data-parent="#myGroup">
