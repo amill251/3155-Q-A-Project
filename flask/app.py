@@ -8,28 +8,37 @@ import sqlite3
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    
+
     config(app, test_config)
     page_routes(app)
     api_routes(app)
 
     return app
 
+
 def page_routes(app):
-    #Routes for Pages
+    # Routes for Pages
     @app.route("/")
     def index():
         return render_template("createaccount.html")
 
+    # No idea if this works but I added a way to get to the login screen -Neal
+# def page_routes(app):
+    # Routes for sign in insted
+    # @app.route("/login")
+    # def index():
+        # return render_template("login.html")
+
+
 def api_routes(app):
-    #Routes for Pages
+    # Routes for Pages
     @app.route("/api")
     def api():
         return 'Hello World'
 
 
 def config(app, test_config):
-    
+
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
