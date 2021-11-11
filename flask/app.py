@@ -35,7 +35,6 @@ def api_routes(app):
 
     @app.route("/api/usercreate", methods=["POST"])
     def usercreate():
-        u_id = request.json['user_id']
         f_name = request.json['first_name']
         l_name = request.json['last_name']
         _uname = request.json['_username']
@@ -44,14 +43,14 @@ def api_routes(app):
         con = sqlite3.connect(DATABASE_PATH)
         cur = con.cursor()
         
-        cur.execute("INSERT INTO users (user_id,first_name,last_name,_username,_password) VALUES (?,?,?,?,?)", (u_id,f_name,l_name,_uname,_pword))
+        cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)", (f_name,l_name,_uname,_pword))
         
         con.commit()
         con.close()
         return jsonify(response='Success')
 
     @app.route("/api/getusers", methods=["GET"])
-    def getquestions():
+    def getusers():
         con = sqlite3.connect(DATABASE_PATH)
         con.row_factory = sqlite3.Row
         
@@ -72,7 +71,6 @@ def api_routes(app):
     
     @app.route("/api/questioncreate", methods=["POST"])
     def questioncreate():
-        q_id = request.json['question_id']
         u_id = request.json['user_id']
         title = request.json['title']
         contents = request.json['contents']
@@ -81,20 +79,25 @@ def api_routes(app):
         con = sqlite3.connect(DATABASE_PATH)
         cur = con.cursor()
         
-        cur.execute("INSERT INTO questions (question_id,user_id,title,contents,date_created) VALUES (?,?,?,?,?)", (q_id,u_id,title,contents,d_created))
+        cur.execute("INSERT INTO questions (user_id,title,contents,date_created) VALUES (?,?,?,?)", (u_id,title,contents,d_created))
         
         con.commit()
         con.close()
         return jsonify(response='Success')
 
     @app.route("/api/getquestions", methods=["GET"])
-    def getusers():
+    def getquestions():
+
         con = sqlite3.connect(DATABASE_PATH)
         con.row_factory = sqlite3.Row
         
         cur = con.cursor()
-        cur.execute("select * from questions")
 
+        if request.args.__contains__('user_id'):
+            cur.execute("select * from questions where user_id = " + request.args['user_id'])
+        else:
+            cur.execute("select * from questions")
+            
         rows = cur.fetchall()
         response = dict()
         response['data'] = []
