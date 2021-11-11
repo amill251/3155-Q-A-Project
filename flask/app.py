@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from sqlite3.dbapi2 import Date
 
 from flask import Flask, app, g, request, jsonify
@@ -107,6 +108,45 @@ def api_routes(app):
         
         con.close()
         return jsonify(response)
+
+    @app.route("/api/questions", methods=["GET","POST"])
+    def questions():
+        if request.method == "POST":
+            print(request.json)
+            u_id = request.json['user_id']
+            title = request.json['title']
+            contents = request.json['contents']
+            d_created = Date.today()
+            
+            con = sqlite3.connect(DATABASE_PATH)
+            cur = con.cursor()
+            
+            cur.execute("INSERT INTO questions (user_id,title,contents,date_created) VALUES (?,?,?,?)", (u_id,title,contents,d_created))
+            
+            con.commit()
+            con.close()
+            return jsonify(response='Success')
+        elif request.method == "GET":
+            con = sqlite3.connect(DATABASE_PATH)
+            con.row_factory = sqlite3.Row
+            
+            cur = con.cursor()
+
+            if request.args.__contains__('user_id'):
+                cur.execute("select * from questions where user_id = " + request.args['user_id'])
+            else:
+                cur.execute("select * from questions")
+                
+            rows = cur.fetchall()
+            response = dict()
+            response['data'] = []
+
+            for row in rows:
+                response['data'].append(dict(row))
+            
+            con.close()
+            return jsonify(response)
+    
 
 
 def config(app, test_config):
