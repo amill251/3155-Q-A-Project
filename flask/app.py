@@ -1,5 +1,6 @@
 import os
 import json
+from sqlite3.dbapi2 import Date
 
 from flask import Flask, app, g, request, jsonify
 from flask import render_template
@@ -30,7 +31,9 @@ def api_routes(app):
         #this is a placeholder for testing
         return 'Okay'
 
-    @app.route("/api/usercreate", methods=["GET", "POST"])
+    ### User User User User User User User User User User User User
+
+    @app.route("/api/usercreate", methods=["POST"])
     def usercreate():
         u_id = request.json['user_id']
         f_name = request.json['first_name']
@@ -48,12 +51,49 @@ def api_routes(app):
         return jsonify(response='Success')
 
     @app.route("/api/getusers", methods=["GET"])
-    def getusers():
+    def getquestions():
         con = sqlite3.connect(DATABASE_PATH)
         con.row_factory = sqlite3.Row
         
         cur = con.cursor()
         cur.execute("select * from users")
+
+        rows = cur.fetchall()
+        response = dict()
+        response['data'] = []
+
+        for row in rows:
+            response['data'].append(dict(row))
+        
+        con.close()
+        return jsonify(response)
+    
+    ### Questions Questions Questions Questions Questions Questions Questions Questions 
+    
+    @app.route("/api/questioncreate", methods=["POST"])
+    def questioncreate():
+        q_id = request.json['question_id']
+        u_id = request.json['user_id']
+        title = request.json['title']
+        contents = request.json['contents']
+        d_created = Date.today()
+        
+        con = sqlite3.connect(DATABASE_PATH)
+        cur = con.cursor()
+        
+        cur.execute("INSERT INTO questions (question_id,user_id,title,contents,date_created) VALUES (?,?,?,?,?)", (q_id,u_id,title,contents,d_created))
+        
+        con.commit()
+        con.close()
+        return jsonify(response='Success')
+
+    @app.route("/api/getquestions", methods=["GET"])
+    def getusers():
+        con = sqlite3.connect(DATABASE_PATH)
+        con.row_factory = sqlite3.Row
+        
+        cur = con.cursor()
+        cur.execute("select * from questions")
 
         rows = cur.fetchall()
         response = dict()

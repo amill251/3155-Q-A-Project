@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS answers  (
 CREATE TABLE IF NOT EXISTS questions  (
 	question_id INTEGER PRIMARY KEY,
 	user_id INTEGER NOT NULL,
-	title TEXT
+	title TEXT,
 	contents TEXT,
 	date_created DATETIME NOT NULL
 );
