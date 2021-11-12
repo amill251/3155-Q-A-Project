@@ -24,7 +24,7 @@ function login() {
         if (data.succeed) {
             window.location.replace("feed");
         } else {
-            $("#login-error").text('Your username is wrong!')
+            $("#login-error").text(data.message)
         }
         //if success = false, let user know the error (either password or user invalid)
     }
