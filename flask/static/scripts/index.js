@@ -18,9 +18,12 @@ function login() {
         "_password" : password
     }
 
-    callback = function () {
+    callback = function (data) {
         //TODO
-        //if success = true, go to feed page
+        console.log(data)
+        if(data.succeed) {
+            window.location.replace("feed");
+        }
         //if success = false, let user know the error (either password or user invalid)
     }
 
@@ -36,7 +39,7 @@ function requestAPI(endpoint, method, body, callback) {
           "Content-Type": "application/json"
         },
         "data": JSON.stringify(body),
-        success: callback
+        "success": callback
       };
 
     console.log(settings);

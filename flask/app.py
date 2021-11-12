@@ -27,6 +27,11 @@ def page_routes(app):
     @app.route("/")
     def index():
         return render_template("login.html")
+    
+    @app.route("/feed")
+    def feed():
+        return render_template("feed.html")
+    
 
 def api_routes(app):
     #Routes for Pages
