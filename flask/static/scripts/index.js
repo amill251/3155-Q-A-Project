@@ -1,7 +1,7 @@
 
   
 function getUsers() {
-    return requestAPI('users', 'GET')
+    return requestAPI('/users', 'GET')
 }
 
 function createUser() {
@@ -27,12 +27,16 @@ function login() {
         //if success = false, let user know the error (either password or user invalid)
     }
 
-    return requestAPI('users/login', 'POST', requestBody, callback)
+    return requestAPI('/users/login', 'POST', requestBody, callback)
+}
+
+function getQuestions(callback) {
+    return requestAPI('/questions', 'GET', null, callback)
 }
 
 function requestAPI(endpoint, method, body, callback) {
     let settings = {
-        "url": "http://localhost:5000/api/" + endpoint,
+        "url": "http://localhost:5000/api" + endpoint,
         "method": method,
         "timeout": 0,
         "headers": {

@@ -3,6 +3,7 @@ import json
 import re
 import base64
 from sqlite3.dbapi2 import Date
+import datetime
 import hmac
 import hashlib
 from flask import Flask, app, g, request, jsonify
@@ -31,7 +32,9 @@ def page_routes(app):
     @app.route("/feed")
     def feed():
         return render_template("feed.html")
-    
+
+    @app.route("/ask-question")
+        return render_template("")
 
 def api_routes(app):
     #Routes for Pages
@@ -118,9 +121,7 @@ def api_routes(app):
     
     @app.route("/api/users/login", methods=["POST"])
     def login_user():
-        print('---------------------------------------------------------------------------------------')
-        
-        print(request.json)
+
         _uname = request.json['_username']
         _pword = request.json['_password']
 
@@ -196,8 +197,8 @@ def api_routes(app):
             u_id = request.json['user_id']
             title = request.json['title']
             contents = request.json['contents']
-            d_created = Date.today()
-            
+            d_created = datetime.datetime.now()
+
             con = sqlite3.connect(DATABASE_PATH)
             cur = con.cursor()
             
