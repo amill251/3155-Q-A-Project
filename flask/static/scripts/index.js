@@ -34,6 +34,10 @@ function getQuestions(callback) {
     return requestAPI('/questions', 'GET', null, callback)
 }
 
+function route(route) {
+    window.location.replace(route);
+}
+
 function requestAPI(endpoint, method, body, callback) {
     let settings = {
         "url": "http://localhost:5000/api" + endpoint,
