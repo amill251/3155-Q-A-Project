@@ -1,5 +1,5 @@
 
-  
+
 function getUsers() {
     return requestAPI('/users', 'GET')
 }
@@ -8,21 +8,23 @@ function createUser() {
     //TODO
     //users/create-account
 }
- 
+
 function login() {
     let username = $('#usernameInput').val();
     let password = $('#passwordInput').val();
 
     let requestBody = {
-        "_username" : username,
-        "_password" : password
+        "_username": username,
+        "_password": password
     }
 
     callback = function (data) {
         //TODO
         console.log(data)
-        if(data.succeed) {
+        if (data.succeed) {
             window.location.replace("feed");
+        } else {
+            $("#login-error").text(data.message)
         }
         //if success = false, let user know the error (either password or user invalid)
     }
@@ -34,17 +36,21 @@ function getQuestions(callback) {
     return requestAPI('/questions', 'GET', null, callback)
 }
 
+function route(route) {
+    window.location.replace(route);
+}
+
 function requestAPI(endpoint, method, body, callback) {
     let settings = {
         "url": "http://localhost:5000/api" + endpoint,
         "method": method,
         "timeout": 0,
         "headers": {
-          "Content-Type": "application/json"
+            "Content-Type": "application/json"
         },
         "data": JSON.stringify(body),
         "success": callback
-      };
+    };
 
     console.log(settings);
 
