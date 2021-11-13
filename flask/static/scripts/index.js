@@ -64,6 +64,10 @@ function getQuestions(callback) {
     return requestAPI('/questions', 'GET', null, callback)
 }
 
+function createQuestion(questionBody, callback) {
+    return requestAPI('/questions', 'POST', questionBody, callback)
+}
+
 function route(route) {
     window.location.replace(route);
 }

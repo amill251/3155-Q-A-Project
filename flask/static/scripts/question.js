@@ -1,11 +1,20 @@
-callback = function (data) {
-    //TODO
-    console.log(data);
-    if (data.succeed) {
-        window.location.replace("feed");
+function submitPost() {
+    let title = $('#title-subject-post').val();
+    let questionContents = $('#question-contents').val();
+    let userId = 1;
+
+    let postBody = {
+        "user_id" : userId,
+        "title" : title,
+        "contents" : questionContents
     }
-    else {
-        console.log(data.message);
-    }
-    //if success = false, let user know the error (either password or user invalid)
+
+    createQuestion(postBody, ((response) => {
+        if(response.succeed) {
+            window.location.replace("feed");
+        } else {
+            alert('There was an error with this Question.')
+        }
+    }));
+
 }
