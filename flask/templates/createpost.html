@@ -8,7 +8,8 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/feedstyle.css') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="{{ url_for('static',filename='scripts/index.js') }}"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static',filename='scripts/question.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   <title>3155-Q-A-Project</title>
@@ -40,18 +41,18 @@
                     <div class="h-100px card">
                         <form>
                             <div class="form-group">
-                              <label for="exampleFormControlInput1">Title/Subject</label>
-                              <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="Subject here">
+                              <label for="title-subject-post">Title/Subject</label>
+                              <input class="form-control" id="title-subject-post" placeholder="Subject here">
                             </div>
                             <div class="form-group">
-                              <label for="exampleFormControlTextarea1">Enter Question Here</label>
-                              <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                              <label for="question-contents">Enter Question Here</label>
+                              <textarea class="form-control" id="question-contents" rows="3"></textarea>
                             </div>
                         </form>
                     </div>
                 </div>
               </div>
-              <input class="btn btn-primary" type="submit" value="Submit Post">
+              <input class="btn btn-primary" type="submit" value="Submit Post" onclick="submitPost()">
             </div>  
           </div>
         </div>
