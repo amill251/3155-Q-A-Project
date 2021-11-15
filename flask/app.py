@@ -37,6 +37,10 @@ def page_routes(app):
     def createpost():
         return render_template("createpost.html")
 
+    @app.route("/createaccount")
+    def createaccount():
+        return render_template("createaccount.html")
+
 def api_routes(app):
     #Routes for Pages
     @app.route("/api", methods=["GET", "POST"])
