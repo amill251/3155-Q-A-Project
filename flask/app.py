@@ -42,8 +42,7 @@ def page_routes(app):
     @app.route("/ask-question")
     def createpost():
         return render_template("createpost.html")
-
-
+      
 def api_routes(app):
     # Routes for Pages
     @app.route("/api", methods=["GET", "POST"])
