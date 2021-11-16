@@ -12,10 +12,11 @@ import sqlite3
 
 DATABASE_PATH = './database/database.db'
 
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    
+
     config(app, test_config)
     init_db(app)
     page_routes(app)
@@ -23,12 +24,17 @@ def create_app(test_config=None):
 
     return app
 
+
 def page_routes(app):
-    #Routes for Pages
+    # Routes for Pages
     @app.route("/")
     def index():
         return render_template("login.html")
-    
+
+    @app.route("/signup")
+    def signup():
+        return render_template("createaccount.html")
+
     @app.route("/feed")
     def feed():
         return render_template("feed.html")
@@ -36,19 +42,15 @@ def page_routes(app):
     @app.route("/ask-question")
     def createpost():
         return render_template("createpost.html")
-
-    @app.route("/createaccount")
-    def createaccount():
-        return render_template("createaccount.html")
-
+      
 def api_routes(app):
-    #Routes for Pages
+    # Routes for Pages
     @app.route("/api", methods=["GET", "POST"])
     def api():
-        #this is a placeholder for testing
+        # this is a placeholder for testing
         return 'Okay'
 
-    ### User User User User User User User User User User User User
+    # User User User User User User User User User User User User
     @app.route("/api/users", methods=["GET", "POST"])
     def users():
         if request.method == "POST":
@@ -56,19 +58,20 @@ def api_routes(app):
             l_name = request.json['last_name']
             _uname = request.json['_username']
             _pword = request.json['_password']
-            
+
             con = sqlite3.connect(DATABASE_PATH)
             cur = con.cursor()
-            
-            cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)", (f_name,l_name,_uname,_pword))
-            
+
+            cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)",
+                        (f_name, l_name, _uname, _pword))
+
             con.commit()
             con.close()
             return jsonify(response='Success')
         elif request.method == "GET":
             con = sqlite3.connect(DATABASE_PATH)
             con.row_factory = sqlite3.Row
-            
+
             cur = con.cursor()
             cur.execute("select * from users")
 
@@ -78,52 +81,54 @@ def api_routes(app):
 
             for row in rows:
                 response['data'].append(dict(row))
-            
+
             con.close()
             print(response)
 
             _response = jsonify(response)
             _response.headers.add("Access-Control-Allow-Origin", "*")
             return _response
-        
+
     @app.route("/api/users/create-account", methods=["POST"])
     def create_account():
-            f_name = request.json['first_name']
-            l_name = request.json['last_name']
-            _uname = request.json['_username']
-            _pword = request.json['_password']
-            
-            message = bytes(_pword, 'utf-8')
-            secret = bytes('secret', 'utf-8')
+        f_name = request.json['first_name']
+        l_name = request.json['last_name']
+        _uname = request.json['_username']
+        _pword = request.json['_password']
 
-            hash_pass = str(base64.b64encode(hmac.new(secret, message, digestmod=hashlib.sha256).digest()).decode())
-            print(hash_pass)
+        message = bytes(_pword, 'utf-8')
+        secret = bytes('secret', 'utf-8')
 
-            con = sqlite3.connect(DATABASE_PATH)
-            cur = con.cursor()
+        hash_pass = str(base64.b64encode(
+            hmac.new(secret, message, digestmod=hashlib.sha256).digest()).decode())
+        print(hash_pass)
 
-            cur = con.cursor()
-            sql_statement = 'select * from users where _username = "' + _uname + '"'
-            print(sql_statement)
-            cur.execute(sql_statement)
+        con = sqlite3.connect(DATABASE_PATH)
+        cur = con.cursor()
 
-            rows = cur.fetchall()
-            user_check = dict()
-            user_check['data'] = []
+        cur = con.cursor()
+        sql_statement = 'select * from users where _username = "' + _uname + '"'
+        print(sql_statement)
+        cur.execute(sql_statement)
 
-            for row in rows:
-                user_check['data'].append(dict(row))
-            
-            print(len(user_check))
-            if len(user_check['data']) > 0:
-                return jsonify(succeed=False, message='User already exists')
-            
-            cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)", (f_name,l_name,_uname,hash_pass))
-            
-            con.commit()
-            con.close()
-            return jsonify(succeed=True, message='User [' + str(_uname) + '] created successfully')
-    
+        rows = cur.fetchall()
+        user_check = dict()
+        user_check['data'] = []
+
+        for row in rows:
+            user_check['data'].append(dict(row))
+
+        print(len(user_check))
+        if len(user_check['data']) > 0:
+            return jsonify(succeed=False, message='User already exists')
+
+        cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)",
+                    (f_name, l_name, _uname, hash_pass))
+
+        con.commit()
+        con.close()
+        return jsonify(succeed=True, message='User [' + str(_uname) + '] created successfully')
+
     @app.route("/api/users/login", methods=["POST"])
     def login_user():
 
@@ -132,9 +137,10 @@ def api_routes(app):
 
         con = sqlite3.connect(DATABASE_PATH)
         con.row_factory = sqlite3.Row
-        
+
         cur = con.cursor()
-        cur.execute('select * from users where _username = "' + str(_uname) + '"')
+        cur.execute('select * from users where _username = "' +
+                    str(_uname) + '"')
         rows = cur.fetchall()
         user_profile = dict()
         for row in rows:
@@ -146,14 +152,13 @@ def api_routes(app):
 
         con.close()
 
-
         hash_pass = bytes(str(_pword), 'utf-8')
         secret = bytes('secret', 'utf-8')
 
-        signature = str(base64.b64encode(hmac.new(secret, hash_pass, digestmod=hashlib.sha256).digest()).decode())
+        signature = str(base64.b64encode(
+            hmac.new(secret, hash_pass, digestmod=hashlib.sha256).digest()).decode())
 
         print(signature)
-        
 
         if user_profile['_password'] == signature:
             return jsonify(succeed=True, message='User [' + str(_uname) + '] logged in successfully')
@@ -166,12 +171,13 @@ def api_routes(app):
         l_name = request.json['last_name']
         _uname = request.json['_username']
         _pword = request.json['_password']
-        
+
         con = sqlite3.connect(DATABASE_PATH)
         cur = con.cursor()
-        
-        cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)", (f_name,l_name,_uname,_pword))
-        
+
+        cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)",
+                    (f_name, l_name, _uname, _pword))
+
         con.commit()
         con.close()
         return jsonify(succeed=True)
@@ -180,7 +186,7 @@ def api_routes(app):
     def getusers():
         con = sqlite3.connect(DATABASE_PATH)
         con.row_factory = sqlite3.Row
-        
+
         cur = con.cursor()
         cur.execute("select * from users")
 
@@ -190,12 +196,12 @@ def api_routes(app):
 
         for row in rows:
             response['data'].append(dict(row))
-        
+
         con.close()
         return jsonify(response)
-    
-    ### Questions Questions Questions Questions Questions Questions Questions Questions 
-    @app.route("/api/questions", methods=["GET","POST"])
+
+    # Questions Questions Questions Questions Questions Questions Questions Questions
+    @app.route("/api/questions", methods=["GET", "POST"])
     def questions():
         if request.method == "POST":
             print(request.json)
@@ -206,45 +212,48 @@ def api_routes(app):
 
             con = sqlite3.connect(DATABASE_PATH)
             cur = con.cursor()
-            
-            cur.execute("INSERT INTO questions (user_id,title,contents,date_created) VALUES (?,?,?,?)", (u_id,title,contents,d_created))
-            
+
+            cur.execute("INSERT INTO questions (user_id,title,contents,date_created) VALUES (?,?,?,?)",
+                        (u_id, title, contents, d_created))
+
             con.commit()
             con.close()
             return jsonify(succeed=True)
         elif request.method == "GET":
             con = sqlite3.connect(DATABASE_PATH)
             con.row_factory = sqlite3.Row
-            
+
             cur = con.cursor()
 
             if request.args.__contains__('user_id'):
-                cur.execute("select * from questions where user_id = " + request.args['user_id'])
+                cur.execute(
+                    "select * from questions where user_id = " + request.args['user_id'])
             else:
                 cur.execute("select * from questions")
-                
+
             rows = cur.fetchall()
             response = dict()
             response['data'] = []
 
             for row in rows:
                 response['data'].append(dict(row))
-            
+
             con.close()
             return jsonify(response)
-    
+
     @app.route("/api/questioncreate", methods=["POST"])
     def questioncreate():
         u_id = request.json['user_id']
         title = request.json['title']
         contents = request.json['contents']
         d_created = Date.today()
-        
+
         con = sqlite3.connect(DATABASE_PATH)
         cur = con.cursor()
-        
-        cur.execute("INSERT INTO questions (user_id,title,contents,date_created) VALUES (?,?,?,?)", (u_id,title,contents,d_created))
-        
+
+        cur.execute("INSERT INTO questions (user_id,title,contents,date_created) VALUES (?,?,?,?)",
+                    (u_id, title, contents, d_created))
+
         con.commit()
         con.close()
         return jsonify(succeed=True)
@@ -254,28 +263,28 @@ def api_routes(app):
 
         con = sqlite3.connect(DATABASE_PATH)
         con.row_factory = sqlite3.Row
-        
+
         cur = con.cursor()
 
         if request.args.__contains__('user_id'):
-            cur.execute("select * from questions where user_id = " + request.args['user_id'])
+            cur.execute("select * from questions where user_id = " +
+                        request.args['user_id'])
         else:
             cur.execute("select * from questions")
-            
+
         rows = cur.fetchall()
         response = dict()
         response['data'] = []
 
         for row in rows:
             response['data'].append(dict(row))
-        
+
         con.close()
         return jsonify(response)
-    
 
 
 def config(app, test_config):
-    
+
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
@@ -294,6 +303,7 @@ def config(app, test_config):
     except OSError:
         pass
 
+
 def init_db(app):
     with app.app_context():
         db = get_db()
@@ -301,11 +311,13 @@ def init_db(app):
             db.cursor().executescript(f.read())
         db.commit()
 
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect(DATABASE_PATH)
     return db
+
 
 def query_db(query, args=(), one=False):
     cur = get_db().execute(query, args)
