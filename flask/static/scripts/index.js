@@ -51,6 +51,8 @@ function login() {
         console.log(data)
         if (data.succeed) {
             window.location.replace("feed");
+        } else {
+            $("#login-error").text(data.message)
         }
         //if success = false, let user know the error (either password or user invalid)
     }
@@ -60,6 +62,14 @@ function login() {
 
 function getQuestions(callback) {
     return requestAPI('/questions', 'GET', null, callback)
+}
+
+function createQuestion(questionBody, callback) {
+    return requestAPI('/questions', 'POST', questionBody, callback)
+}
+
+function route(route) {
+    window.location.replace(route);
 }
 
 function requestAPI(endpoint, method, body, callback) {
