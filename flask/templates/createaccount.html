@@ -8,7 +8,6 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/style.css') }}">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <script src="{{ url_for('static',filename='scripts/index.js') }}"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
@@ -17,12 +16,14 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
     crossorigin="anonymous"></script>
-  <title>3155-Q-A-Project</title>
+  <script src="{{ url_for('static',filename='scripts/index.js') }}"></script>
+  <script src="{{ url_for('static',filename='scripts/signup.js') }}"></script>
+  <title>Flask Overflow</title>
 </head>
 
 <body class="bg-light">
-  <section class="vh-100" style="background-color: #eee;">
-    <div class="container h-100">
+  <section style="background-color: #eee; min-height: 100vh;">
+    <div class="container h-100 pb-3">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-lg-12 col-xl-11">
           <div class="card text-black" style="border-radius: 25px;">
@@ -30,55 +31,48 @@
               <div class="row justify-content-center">
                 <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
 
-                  <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up for QnA Post Account</p>
+                  <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up for a Flask Overflow account</p>
 
-                  <form class="mx-1 mx-md-4">
+                  <form action="#" id="signup-form" class="mx-1 mx-md-4">
 
-                    <div class="d-flex flex-row align-items-center mb-4">
+                    <div class="d-flex flex-row align-items-center mb-2">
                       <i class="fas fa-user fa-lg me-3 fa-fw"></i>
-                      <div class="form-outline flex-fill mb-0">
-                        <input type="text" id="form3Example1c" class="form-control" />
-                        <label class="form-label" for="form3Example1c">Your Name</label>
+                      <div class="form-outline d-flex mb-0">
+                        <div class="pr-2">
+                          <input type="text" id="first_name" class="form-control" required/>
+                          <label class="form-label" for="first_name">First Name</label>
+                        </div>
+                        <div class="pl-2">
+                          <input type="text" id="last_name" class="form-control" required/>
+                          <label class="form-label" for="last_name">Last Name</label>
+                        </div>
                       </div>
                     </div>
 
-                    <div class="d-flex flex-row align-items-center mb-4">
+                    <div class="d-flex flex-row align-items-center mb-2">
                       <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                       <div class="form-outline flex-fill mb-0">
-                        <input type="email" id="form3Example2c" class="form-control" />
-                        <label class="form-label" for="form3Example2c">Username</label>
+                        <input type="text" id="username" class="form-control" required/>
+                        <label class="form-label" for="username">Username</label>
+                        <p id="create-acc-error" style="display: inline-block; font-size: 10px;" class="text-danger"></p>
                       </div>
                     </div>
 
-                    <div class="d-flex flex-row align-items-center mb-4">
+                    <div class="d-flex flex-row align-items-center mb-2">
                       <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
                       <div class="form-outline flex-fill mb-0">
-                        <input type="password" id="form3Example3c" class="form-control" />
-                        <label class="form-label" for="form3Example3c">Password</label>
+                        <input type="password" id="password" class="form-control" required/>
+                        <label class="form-label" for="password">Password</label>
                       </div>
                     </div>
 
-                    <div class="d-flex flex-row align-items-center mb-4">
-                      <i class="fas fa-key fa-lg me-3 fa-fw"></i>
-                      <div class="form-outline flex-fill mb-0">
-                        <input type="password" id="form3Example3cd" class="form-control" />
-                        <label class="form-label" for="form3Example3cd">Repeat your password</label>
-                        <p id="auth-err" style="color:red"></p>
-                      </div>
-                    </div>
 
-                    <div class="form-check d-flex justify-content-center mb-5">
-                      <input class="form-check-input me-2" type="checkbox" value="" id="form2Example4c" />
-                      <label class="form-check-label" for="form2Example4c">
-                        I agree all statements in <a href="#!">Terms of service</a>
-                      </label>
+                    <div class="d-flex justify-content-between">
+                      <button type="button" class="w-45 btn btn-light" style="border: 1px solid #eee" onclick="route('/')">Return to login</button>
+                      <input type="submit" class="w-45 btn btn-dark" onclick="signup()" value="Register" />
                     </div>
-
-                    <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                      <button type="button" class="btn btn-primary btn-lg" onclick="signup()">Register</button>
-                    </div>
-
                   </form>
+
 
                 </div>
                 <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
