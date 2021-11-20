@@ -12,3 +12,10 @@
     padding: 15px 10px;
 }
 
+.w-45 {
+    width: 45% !important;
+}
+
+.pl-3 {
+    padding-left: 1rem;
+}

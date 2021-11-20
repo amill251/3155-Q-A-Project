@@ -116,18 +116,15 @@ def api_routes(app):
         user_check['data'] = []
 
         for row in rows:
-            user_check['data'].append(dict(row))
-
-        print(len(user_check))
-        if len(user_check['data']) > 0:
-            return jsonify(succeed=False, message='User already exists')
+            print(row)
+            return jsonify(succeed=False, message='Error: User ' + str(_uname) + ' already exists') 
 
         cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)",
                     (f_name, l_name, _uname, hash_pass))
 
         con.commit()
         con.close()
-        return jsonify(succeed=True, message='User [' + str(_uname) + '] created successfully')
+        return jsonify(succeed=True, message='User ' + str(_uname) + ' created successfully')
 
     @app.route("/api/users/login", methods=["POST"])
     def login_user():
@@ -161,7 +158,7 @@ def api_routes(app):
         print(signature)
 
         if user_profile['_password'] == signature:
-            return jsonify(succeed=True, message='User [' + str(_uname) + '] logged in successfully')
+            return jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
         else:
             return jsonify(succeed=False, message='Incorrect Password')
 
