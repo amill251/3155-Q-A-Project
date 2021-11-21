@@ -167,11 +167,12 @@ def api_routes(app):
 
 
         if user_profile['_password'] == signature:
-            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=500)}, app.config['SECRET_KEY'], algorithm="HS256")
+            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)}, app.config['SECRET_KEY'], algorithm="HS256")
 
             response = jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
             base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
             response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+            response.set_cookie('exp', str(json.loads(str(base64.b64decode(bearer_token.replace('Bearer ', '').split('.')[1]).decode()))['exp']))
             return response
         else:
             return jsonify(succeed=False, message='Incorrect Password')
@@ -207,7 +208,7 @@ def api_routes(app):
 
 
         if user_profile['_password'] == signature:
-            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=500)}, app.config['SECRET_KEY'], algorithm="HS256")
+            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)}, app.config['SECRET_KEY'], algorithm="HS256")
 
             response = jsonify(succeed=True, token=bearer_token)
             base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
@@ -303,23 +304,23 @@ def cookie_auth(app):
             cookie_token = request.cookies.get('bt')
 
             if not cookie_token:
-                return redirect('/login'), 200
+                return redirect(url_for('index'))
 
             bearer_token = str(base64.b64decode(cookie_token).decode())
 
             if not bearer_token:
-                return redirect('/login'), 200
+                return redirect(url_for('index'))
 
             if bool(re.search('^Bearer\s+(.*)', bearer_token)):
                 token = bearer_token.replace('Bearer ', '')
             else:
-                return redirect('/login'), 200
+                return redirect(url_for('index'))
 
             try:
                 jwt.decode(token, app.config['SECRET_KEY'], algorithms="HS256")
                 return func(*args, **kwargs)
             except:
-                return redirect('/login'), 200
+                return redirect(url_for('index'))
         return decorated
     return view_auth_decorator
 

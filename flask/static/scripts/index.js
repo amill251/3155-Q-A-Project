@@ -38,7 +38,12 @@ function requestAPI(endpoint, method, body, callback) {
             "Authorization": jwtToken
         },
         "data": JSON.stringify(body),
-        "success": callback
+        "success": callback,
+        "error": ((error) => {
+            if(error.status == 401) {
+                route('/');
+            }
+        })
     };
 
     return $.ajax(settings).done();
@@ -50,6 +55,29 @@ function tokenExpired() {
     }
 
     let exp = JSON.parse(atob(jwtToken.replace('Bearer ', '').split('.')[1])).exp - Math.ceil(((new Date().getTime())/1000))
+    if(exp > 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+function cookiesExpired() {
+    let cookies = {}
+    document.cookie.split(';').forEach((cookie) => {
+        let re = /[=]+/;
+        let index = cookie.match(re).index
+        
+        if(parseInt(cookie.substring(index + 1, cookie.length))) {
+            cookies[cookie.substring(0, index).replace(' ', '')] = parseInt(cookie.substring(index + 1, cookie.length));
+        } else {
+            cookies[cookie.substring(0, index).replace(' ', '')] = cookie.substring(index + 1, cookie.length);
+        }
+    });
+    if(!cookies.hasOwnProperty('exp')) {
+        return true;
+    }
+    let exp = cookies.exp - Math.ceil(((new Date().getTime())/1000))
     if(exp > 0) {
         return false;
     } else {

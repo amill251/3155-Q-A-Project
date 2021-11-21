@@ -1,13 +1,11 @@
+
+
 $(document).ready(() => {
-    refreshAuth((response) => {
-        jwtToken = response.token;
-        if(!tokenExpired()) {
-            route('feed')
-        } else {
-            $('#login-status').hide();
-            $('#login-form').show();
-        }
-    }); 
+    if(cookiesExpired()) {
+        $('#login-page').show()
+    } else {
+        route('feed')
+    }
 });
 
 function login() {
