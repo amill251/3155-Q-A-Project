@@ -1,3 +1,5 @@
+let jwtToken;
+
 function getUsers() {
     return requestAPI('/users', 'GET');
 }
@@ -18,8 +20,12 @@ function postSignup(signupBody, callback) {
     return requestAPI('/users/create-account', 'POST', signupBody, callback);
 }
 
+function refreshAuth(callback) {
+    return requestAPI('/refresh-token', 'GET', null, callback);
+}
+
 function route(route) {
-    window.location.replace(route);
+    window.location.replace(route)
 }
 
 function requestAPI(endpoint, method, body, callback) {
@@ -28,13 +34,25 @@ function requestAPI(endpoint, method, body, callback) {
         "method": method,
         "timeout": 0,
         "headers": {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": jwtToken
         },
         "data": JSON.stringify(body),
         "success": callback
     };
 
-    console.log(settings);
-
     return $.ajax(settings).done();
+}
+
+function tokenExpired() {
+    if(!jwtToken) {
+        return true;
+    }
+
+    let exp = JSON.parse(atob(jwtToken.replace('Bearer ', '').split('.')[1])).exp - Math.ceil(((new Date().getTime())/1000))
+    if(exp > 0) {
+        return false;
+    } else {
+        return true;
+    }
 }

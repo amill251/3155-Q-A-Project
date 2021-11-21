@@ -1,3 +1,9 @@
+$(document).ready(() => {
+    refreshAuth((response) => {
+        jwtToken = response.token;
+    }); 
+});
+
 function submitPost() {
     let title = $('#title-subject-post').val();
     let questionContents = $('#question-contents').val();
