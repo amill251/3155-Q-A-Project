@@ -1,6 +1,4 @@
 __pycache__/
 /flask/__pycache__/
 flask/database/database.db
-Lib
-Scripts
-pyvenv.cfg
+env
