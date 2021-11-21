@@ -1,6 +1,6 @@
-# 3155-Q-A-Project
+# Flask Overflow
 Teammates:
     Edward Johnson
     Neal Lemon
-    Alex Millerx
+    Alex Miller
     Ryan Paynter
