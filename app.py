@@ -10,12 +10,15 @@ from flask import Flask, app, g, request, jsonify
 from flask import render_template
 import sqlite3
 
-DATABASE_PATH = './database/database.db'
+DATABASE_PATH = './flask/database/database.db'
 
 
 def create_app(test_config=None):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, 
+                static_url_path='',
+                template_folder='./flask/templates', 
+                static_folder='./flask/static')
 
     config(app, test_config)
     init_db(app)
@@ -304,7 +307,7 @@ def config(app, test_config):
 def init_db(app):
     with app.app_context():
         db = get_db()
-        with app.open_resource('./database/schema.sql', mode='r') as f:
+        with app.open_resource('./flask/database/schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
