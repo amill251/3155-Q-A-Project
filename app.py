@@ -6,9 +6,12 @@ from sqlite3.dbapi2 import Date
 import datetime
 import hmac
 import hashlib
-from flask import Flask, app, g, request, jsonify
+from flask import Flask, app, g, request, jsonify, redirect, url_for
 from flask import render_template
 import sqlite3
+import datetime
+import jwt
+from functools import wraps
 
 DATABASE_PATH = './flask/database/database.db'
 
@@ -39,18 +42,22 @@ def page_routes(app):
         return render_template("createaccount.html")
 
     @app.route("/feed")
+    @cookie_auth(app)
     def feed():
         return render_template("feed.html")
 
     @app.route("/ask-question")
+    @cookie_auth(app)
     def createpost():
         return render_template("createpost.html")
       
 def api_routes(app):
     # Routes for Pages
     @app.route("/api", methods=["GET", "POST"])
+    @api_auth(app)
     def api():
         # this is a placeholder for testing
+
         return 'Okay'
 
     # User User User User User User User User User User User User
@@ -100,7 +107,7 @@ def api_routes(app):
         _pword = request.json['_password']
 
         message = bytes(_pword, 'utf-8')
-        secret = bytes('secret', 'utf-8')
+        secret = bytes(app.config['SECRET_KEY'], 'utf-8')
 
         hash_pass = str(base64.b64encode(
             hmac.new(secret, message, digestmod=hashlib.sha256).digest()).decode())
@@ -129,6 +136,7 @@ def api_routes(app):
         con.close()
         return jsonify(succeed=True, message='User ' + str(_uname) + ' created successfully')
 
+
     @app.route("/api/users/login", methods=["POST"])
     def login_user():
 
@@ -146,62 +154,83 @@ def api_routes(app):
         for row in rows:
             user_profile = dict(row)
 
-        print(user_profile)
         if not user_profile.__contains__('_username'):
             return jsonify(succeed=False, message='User not found')
 
         con.close()
 
         hash_pass = bytes(str(_pword), 'utf-8')
-        secret = bytes('secret', 'utf-8')
+        secret = bytes(app.config['SECRET_KEY'], 'utf-8')
 
         signature = str(base64.b64encode(
             hmac.new(secret, hash_pass, digestmod=hashlib.sha256).digest()).decode())
 
-        print(signature)
 
         if user_profile['_password'] == signature:
-            return jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
+            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=500)}, app.config['SECRET_KEY'], algorithm="HS256")
+
+            response = jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
+            base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
+            response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+            return response
         else:
             return jsonify(succeed=False, message='Incorrect Password')
 
-    @app.route("/api/usercreate", methods=["POST"])
-    def usercreate():
-        f_name = request.json['first_name']
-        l_name = request.json['last_name']
+
+    @app.route("/api/users/token", methods=["POST"])
+    def get_token():
+
         _uname = request.json['_username']
         _pword = request.json['_password']
 
         con = sqlite3.connect(DATABASE_PATH)
-        cur = con.cursor()
-
-        cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)",
-                    (f_name, l_name, _uname, _pword))
-
-        con.commit()
-        con.close()
-        return jsonify(succeed=True)
-
-    @app.route("/api/getusers", methods=["GET"])
-    def getusers():
-        con = sqlite3.connect(DATABASE_PATH)
         con.row_factory = sqlite3.Row
 
         cur = con.cursor()
-        cur.execute("select * from users")
-
+        cur.execute('select * from users where _username = "' +
+                    str(_uname) + '"')
         rows = cur.fetchall()
-        response = dict()
-        response['data'] = []
-
+        user_profile = dict()
         for row in rows:
-            response['data'].append(dict(row))
+            user_profile = dict(row)
+
+        if not user_profile.__contains__('_username'):
+            return jsonify(succeed=False, message='User not found')
 
         con.close()
-        return jsonify(response)
+
+        hash_pass = bytes(str(_pword), 'utf-8')
+        secret = bytes(app.config['SECRET_KEY'], 'utf-8')
+
+        signature = str(base64.b64encode(
+            hmac.new(secret, hash_pass, digestmod=hashlib.sha256).digest()).decode())
+
+
+        if user_profile['_password'] == signature:
+            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=500)}, app.config['SECRET_KEY'], algorithm="HS256")
+
+            response = jsonify(succeed=True, token=bearer_token)
+            base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
+            response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+            return response
+        else:
+            return jsonify(succeed=False, message='Incorrect Password')
+
+
+    @app.route("/api/refresh-token", methods=["GET"])
+    @cookie_auth(app)
+    def refresh_token():
+
+        cookie_token = request.cookies.get('bt')
+
+        bearer_token = str(base64.b64decode(cookie_token).decode())
+
+        return jsonify(token=bearer_token)
+
 
     # Questions Questions Questions Questions Questions Questions Questions Questions
     @app.route("/api/questions", methods=["GET", "POST"])
+    @api_auth(app)
     def questions():
         if request.method == "POST":
             print(request.json)
@@ -241,52 +270,63 @@ def api_routes(app):
             con.close()
             return jsonify(response)
 
-    @app.route("/api/questioncreate", methods=["POST"])
-    def questioncreate():
-        u_id = request.json['user_id']
-        title = request.json['title']
-        contents = request.json['contents']
-        d_created = Date.today()
+def api_auth(app):
+    def api_auth_decorator(func):
+        @wraps(func)
+        def decorated(*args, **kwargs):
 
-        con = sqlite3.connect(DATABASE_PATH)
-        cur = con.cursor()
+            bearer_token = request.headers.get('Authorization')
 
-        cur.execute("INSERT INTO questions (user_id,title,contents,date_created) VALUES (?,?,?,?)",
-                    (u_id, title, contents, d_created))
+            if not bearer_token:
+                return jsonify({'message' : 'Token is missing'}), 401
+            
+            if bool(re.search('^Bearer\s+(.*)', bearer_token)):
+                token = bearer_token.replace('Bearer ', '')
+            else:
+                return jsonify({'message' : 'Bearer Token is invalid'}), 401
 
-        con.commit()
-        con.close()
-        return jsonify(succeed=True)
 
-    @app.route("/api/getquestions", methods=["GET"])
-    def getquestions():
+            try:
+                jwt.decode(token, app.config['SECRET_KEY'], algorithms="HS256")
+                return func(*args, **kwargs)
+            except:
+                return jsonify({'message': 'Bearer Token is invalid'}), 401
+        return decorated
+    return api_auth_decorator
 
-        con = sqlite3.connect(DATABASE_PATH)
-        con.row_factory = sqlite3.Row
 
-        cur = con.cursor()
+def cookie_auth(app):
+    def view_auth_decorator(func):
+        @wraps(func)
+        def decorated(*args, **kwargs):
+            
+            cookie_token = request.cookies.get('bt')
 
-        if request.args.__contains__('user_id'):
-            cur.execute("select * from questions where user_id = " +
-                        request.args['user_id'])
-        else:
-            cur.execute("select * from questions")
+            if not cookie_token:
+                return redirect('/login'), 200
 
-        rows = cur.fetchall()
-        response = dict()
-        response['data'] = []
+            bearer_token = str(base64.b64decode(cookie_token).decode())
 
-        for row in rows:
-            response['data'].append(dict(row))
+            if not bearer_token:
+                return redirect('/login'), 200
 
-        con.close()
-        return jsonify(response)
+            if bool(re.search('^Bearer\s+(.*)', bearer_token)):
+                token = bearer_token.replace('Bearer ', '')
+            else:
+                return redirect('/login'), 200
 
+            try:
+                jwt.decode(token, app.config['SECRET_KEY'], algorithms="HS256")
+                return func(*args, **kwargs)
+            except:
+                return redirect('/login'), 200
+        return decorated
+    return view_auth_decorator
 
 def config(app, test_config):
 
     app.config.from_mapping(
-        SECRET_KEY='dev',
+        SECRET_KEY='developmentsecretkey',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
     )
 

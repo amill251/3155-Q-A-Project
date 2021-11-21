@@ -1,3 +1,15 @@
+$(document).ready(() => {
+    refreshAuth((response) => {
+        jwtToken = response.token;
+        if(!tokenExpired()) {
+            route('feed')
+        } else {
+            $('#login-status').hide();
+            $('#login-form').show();
+        }
+    }); 
+});
+
 function login() {
 
     let formFalse = false;
@@ -23,7 +35,6 @@ function login() {
     }
 
     callback = function (data) {
-        console.log(data)
         if (data.succeed) {
             route("feed");
         } else {

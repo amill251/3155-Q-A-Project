@@ -1,10 +1,12 @@
 $(document).ready(() => {
-    loadPosts()
+    refreshAuth((response) => {
+        jwtToken = response.token;
+        loadPosts();
+    }); 
 });
 
 function loadPosts() {
     getQuestions((response) => {
-        console.log(response)
         response.data.forEach(questionResponse => {
             $('#feed-container').append(createHTMLPostTemplate(questionResponse));
         });
