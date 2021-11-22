@@ -129,7 +129,7 @@ def api_routes(app):
         db.session.commit()
        
         response = jsonify(succeed=True, message='User ' + str(_uname) + ' created successfully')
-        token_expires = 30
+        token_expires = 3600
         bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
         response = jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
@@ -162,7 +162,7 @@ def api_routes(app):
 
 
         if fetched_user._password == signature:
-            token_expires = 30
+            token_expires = 3600
             bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
             response = jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
@@ -206,7 +206,7 @@ def api_routes(app):
 
 
         if user_profile['_password'] == signature:
-            token_expires = 30
+            token_expires = 3600
             bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
             response = jsonify(succeed=True, token=bearer_token)
