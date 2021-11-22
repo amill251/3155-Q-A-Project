@@ -1,4 +1,8 @@
 $(document).ready(() => {
+    let cookies = getCookies();
+    console.log(cookies);
+    console.log(cookies.user)
+    $('#user-profile').text('Welcome Back ' + cookies.user);
     refreshAuth((response) => {
         jwtToken = response.token;
         loadPosts();
@@ -7,11 +11,11 @@ $(document).ready(() => {
 
 function loadPosts() {
     getQuestions((response) => {
+        console.log(response);
         response.data.forEach(questionResponse => {
             $('#feed-container').append(createHTMLPostTemplate(questionResponse));
         });
     })
-
 }
 
 
