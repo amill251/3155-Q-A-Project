@@ -13,24 +13,28 @@ import sqlite3
 import datetime
 import jwt
 from functools import wraps
-# from .flask.models.models import User as User
+# from flask_app.models.models import User as User
 # from .flask.database.database import db
+import flask_app.database.database
+# from flask_app.database.database import User as User
+from flask_app.database.database import db
+from flask_app.models.models import users as User
 
-DATABASE_PATH = './flask/database/database.db'
+DATABASE_PATH = './flask_app/database/database.db'
 
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, 
                 static_url_path='',
-                template_folder='./flask/templates', 
-                static_folder='./flask/static')
+                template_folder='./flask_app/templates', 
+                static_folder='./flask_app/static')
 
     config(app, test_config)
     init_db(app)
-    # db.init_app(app)
-    # with app.app_context():
-    #     db.create_all()
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
     page_routes(app)
     api_routes(app)
 
@@ -119,6 +123,10 @@ def api_routes(app):
             hmac.new(secret, message, digestmod=hashlib.sha256).digest()).decode())
         print(hash_pass)
 
+        new_record = User(f_name, l_name, _uname, _pword)
+        db.session.add(new_record)
+        db.session.commit()
+
         con = sqlite3.connect(DATABASE_PATH)
         cur = con.cursor()
 
@@ -150,7 +158,7 @@ def api_routes(app):
         response.set_cookie('exp', str(getBearerJwtPayload(bearer_token)['exp']))
         response.set_cookie('expires_in', str(getBearerJwtPayload(bearer_token)['expires_in']))
         response.set_cookie('user', str(getBearerJwtPayload(bearer_token)['user']))
-        
+
         return response
 
 
@@ -159,6 +167,13 @@ def api_routes(app):
 
         _uname = request.json['_username']
         _pword = request.json['_password']
+
+        a_user = db.session.query(User).filter_by(_username='username').first()
+        print('Printing alchemy response -----------------------------------')
+        print(a_user)
+        print(a_user.user_id)
+        print(a_user.first_name)
+        print(a_user._password)
 
         con = sqlite3.connect(DATABASE_PATH)
         con.row_factory = sqlite3.Row
@@ -371,7 +386,7 @@ def config(app, test_config):
     app.config.from_mapping(
         SECRET_KEY='developmentsecretkey',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-        SQLALCHEMY_DATABASE_URI=DATABASE_PATH,
+        SQLALCHEMY_DATABASE_URI='sqlite:///flask_app/database/database.db',
         SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
 
@@ -392,7 +407,7 @@ def config(app, test_config):
 def init_db(app):
     with app.app_context():
         db = get_db()
-        with app.open_resource('./flask/database/schema.sql', mode='r') as f:
+        with app.open_resource('./flask_app/database/schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
