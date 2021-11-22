@@ -10,15 +10,11 @@ from typing import Dict
 from flask import Flask, app, g, request, jsonify, redirect, url_for
 from flask import render_template
 import sqlite3
-import datetime
 import jwt
 from functools import wraps
-# from flask_app.models.models import User as User
-# from .flask.database.database import db
-import flask_app.database.database
-# from flask_app.database.database import User as User
 from flask_app.database.database import db
-from flask_app.models.models import users as User
+from flask_app.models.models import User as User
+from flask_app.models.models import Question as Question
 
 DATABASE_PATH = './flask_app/database/database.db'
 
@@ -121,33 +117,17 @@ def api_routes(app):
 
         hash_pass = str(base64.b64encode(
             hmac.new(secret, message, digestmod=hashlib.sha256).digest()).decode())
-        print(hash_pass)
 
-        new_record = User(f_name, l_name, _uname, _pword)
-        db.session.add(new_record)
-        db.session.commit()
+        check_user = db.session.query(User).filter_by(_username=_uname).first()
+       
 
-        con = sqlite3.connect(DATABASE_PATH)
-        cur = con.cursor()
-
-        cur = con.cursor()
-        sql_statement = 'select * from users where _username = "' + _uname + '"'
-        print(sql_statement)
-        cur.execute(sql_statement)
-
-        rows = cur.fetchall()
-        user_check = dict()
-        user_check['data'] = []
-
-        for row in rows:
-            print(row)
+        if check_user:
             return jsonify(succeed=False, message='Error: User ' + str(_uname) + ' already exists') 
 
-        cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)",
-                    (f_name, l_name, _uname, hash_pass))
-
-        con.commit()
-        con.close()
+        new_record = User(f_name, l_name, _uname, hash_pass)
+        db.session.add(new_record)
+        db.session.commit()
+       
         response = jsonify(succeed=True, message='User ' + str(_uname) + ' created successfully')
         token_expires = 30
         bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
@@ -168,28 +148,11 @@ def api_routes(app):
         _uname = request.json['_username']
         _pword = request.json['_password']
 
-        a_user = db.session.query(User).filter_by(_username='username').first()
-        print('Printing alchemy response -----------------------------------')
-        print(a_user)
-        print(a_user.user_id)
-        print(a_user.first_name)
-        print(a_user._password)
+        fetched_user = db.session.query(User).filter_by(_username=_uname).first()
+        
 
-        con = sqlite3.connect(DATABASE_PATH)
-        con.row_factory = sqlite3.Row
-
-        cur = con.cursor()
-        cur.execute('select * from users where _username = "' +
-                    str(_uname) + '"')
-        rows = cur.fetchall()
-        user_profile = dict()
-        for row in rows:
-            user_profile = dict(row)
-
-        if not user_profile.__contains__('_username'):
+        if not fetched_user:
             return jsonify(succeed=False, message='User not found')
-
-        con.close()
 
         hash_pass = bytes(str(_pword), 'utf-8')
         secret = bytes(app.config['SECRET_KEY'], 'utf-8')
@@ -198,7 +161,7 @@ def api_routes(app):
             hmac.new(secret, hash_pass, digestmod=hashlib.sha256).digest()).decode())
 
 
-        if user_profile['_password'] == signature:
+        if fetched_user._password == signature:
             token_expires = 30
             bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
@@ -290,36 +253,34 @@ def api_routes(app):
             contents = request.json['contents']
             d_created = datetime.datetime.now()
 
-            con = sqlite3.connect(DATABASE_PATH)
-            cur = con.cursor()
+            new_record = Question(u_id, title, contents, d_created)
+            db.session.add(new_record)
+            db.session.commit()
 
-            cur.execute("INSERT INTO questions (user_id,title,contents,date_created) VALUES (?,?,?,?)",
-                        (u_id, title, contents, d_created))
 
-            con.commit()
-            con.close()
             return jsonify(succeed=True)
         elif request.method == "GET":
-            con = sqlite3.connect(DATABASE_PATH)
-            con.row_factory = sqlite3.Row
+            
+            fetched_questions = db.session.query(Question).all()
 
-            cur = con.cursor()
+            questions_response = dict()
+            questions_response['data'] = []
 
-            if request.args.__contains__('user_id'):
-                cur.execute(
-                    "select * from questions where user_id = " + request.args['user_id'])
-            else:
-                cur.execute("select * from questions")
+            for question in fetched_questions:
+                print(question)
+                question_dict = {
+                    'user_id': question.user_id,
+                    'title': question.title,
+                    'contents': question.contents,
+                    'date_created': question.date_created
+                }
+                questions_response['data'].append(question_dict)
 
-            rows = cur.fetchall()
-            response = dict()
-            response['data'] = []
-
-            for row in rows:
-                response['data'].append(dict(row))
-
-            con.close()
-            return jsonify(response)
+            print(questions_response)
+            response = jsonify(questions_response)
+            print(response)
+            print(response.status_code)
+            return response
 
 def api_auth(app):
     def api_auth_decorator(func):
@@ -328,17 +289,20 @@ def api_auth(app):
 
             bearer_token = request.headers.get('Authorization')
 
+            print(bearer_token)
+
             if not bearer_token:
                 return jsonify({'message' : 'Token is missing'}), 401
-            
+            print('Past 1')
             if bool(re.search('^Bearer\s+(.*)', bearer_token)):
                 token = bearer_token.replace('Bearer ', '')
             else:
                 return jsonify({'message' : 'Bearer Token is invalid'}), 401
-
+            print('Past 2')
 
             try:
                 jwt.decode(token, app.config['SECRET_KEY'], algorithms="HS256")
+                print('Past 3')
                 return func(*args, **kwargs)
             except:
                 return jsonify({'message': 'Bearer Token is invalid'}), 401
