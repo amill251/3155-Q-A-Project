@@ -6,25 +6,31 @@ from sqlite3.dbapi2 import Date
 import datetime
 import hmac
 import hashlib
+from typing import Dict
 from flask import Flask, app, g, request, jsonify, redirect, url_for
 from flask import render_template
 import sqlite3
-import datetime
 import jwt
 from functools import wraps
+from flask_app.database.database import db
+from flask_app.models.models import User as User
+from flask_app.models.models import Question as Question
 
-DATABASE_PATH = './flask/database/database.db'
+DATABASE_PATH = './flask_app/database/database.db'
 
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, 
                 static_url_path='',
-                template_folder='./flask/templates', 
-                static_folder='./flask/static')
+                template_folder='./flask_app/templates', 
+                static_folder='./flask_app/static')
 
     config(app, test_config)
     init_db(app)
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
     page_routes(app)
     api_routes(app)
 
@@ -111,30 +117,29 @@ def api_routes(app):
 
         hash_pass = str(base64.b64encode(
             hmac.new(secret, message, digestmod=hashlib.sha256).digest()).decode())
-        print(hash_pass)
 
-        con = sqlite3.connect(DATABASE_PATH)
-        cur = con.cursor()
+        check_user = db.session.query(User).filter_by(_username=_uname).first()
+       
 
-        cur = con.cursor()
-        sql_statement = 'select * from users where _username = "' + _uname + '"'
-        print(sql_statement)
-        cur.execute(sql_statement)
-
-        rows = cur.fetchall()
-        user_check = dict()
-        user_check['data'] = []
-
-        for row in rows:
-            print(row)
+        if check_user:
             return jsonify(succeed=False, message='Error: User ' + str(_uname) + ' already exists') 
 
-        cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)",
-                    (f_name, l_name, _uname, hash_pass))
+        new_record = User(f_name, l_name, _uname, hash_pass)
+        db.session.add(new_record)
+        db.session.commit()
+       
+        response = jsonify(succeed=True, message='User ' + str(_uname) + ' created successfully')
+        token_expires = 3600
+        bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
-        con.commit()
-        con.close()
-        return jsonify(succeed=True, message='User ' + str(_uname) + ' created successfully')
+        response = jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
+        base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
+        response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+        response.set_cookie('exp', str(getBearerJwtPayload(bearer_token)['exp']))
+        response.set_cookie('expires_in', str(getBearerJwtPayload(bearer_token)['expires_in']))
+        response.set_cookie('user', str(getBearerJwtPayload(bearer_token)['user']))
+
+        return response
 
 
     @app.route("/api/users/login", methods=["POST"])
@@ -143,21 +148,11 @@ def api_routes(app):
         _uname = request.json['_username']
         _pword = request.json['_password']
 
-        con = sqlite3.connect(DATABASE_PATH)
-        con.row_factory = sqlite3.Row
+        fetched_user = db.session.query(User).filter_by(_username=_uname).first()
+        
 
-        cur = con.cursor()
-        cur.execute('select * from users where _username = "' +
-                    str(_uname) + '"')
-        rows = cur.fetchall()
-        user_profile = dict()
-        for row in rows:
-            user_profile = dict(row)
-
-        if not user_profile.__contains__('_username'):
+        if not fetched_user:
             return jsonify(succeed=False, message='User not found')
-
-        con.close()
 
         hash_pass = bytes(str(_pword), 'utf-8')
         secret = bytes(app.config['SECRET_KEY'], 'utf-8')
@@ -166,12 +161,16 @@ def api_routes(app):
             hmac.new(secret, hash_pass, digestmod=hashlib.sha256).digest()).decode())
 
 
-        if user_profile['_password'] == signature:
-            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=500)}, app.config['SECRET_KEY'], algorithm="HS256")
+        if fetched_user._password == signature:
+            token_expires = 3600
+            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
             response = jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
             base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
             response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+            response.set_cookie('exp', str(getBearerJwtPayload(bearer_token)['exp']))
+            response.set_cookie('expires_in', str(getBearerJwtPayload(bearer_token)['expires_in']))
+            response.set_cookie('user', str(getBearerJwtPayload(bearer_token)['user']))
             return response
         else:
             return jsonify(succeed=False, message='Incorrect Password')
@@ -207,11 +206,14 @@ def api_routes(app):
 
 
         if user_profile['_password'] == signature:
-            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=500)}, app.config['SECRET_KEY'], algorithm="HS256")
+            token_expires = 3600
+            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
             response = jsonify(succeed=True, token=bearer_token)
             base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
             response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+            response.set_cookie('exp', str(getBearerJwtPayload(bearer_token))['exp'])
+            response.set_cookie('user', str(getBearerJwtPayload(bearer_token))['user'])
             return response
         else:
             return jsonify(succeed=False, message='Incorrect Password')
@@ -224,8 +226,20 @@ def api_routes(app):
         cookie_token = request.cookies.get('bt')
 
         bearer_token = str(base64.b64decode(cookie_token).decode())
+        token_expires = 30
 
-        return jsonify(token=bearer_token)
+        bearer_token = 'Bearer ' + jwt.encode({'user': getBearerJwtPayload(bearer_token)['user'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
+        
+        base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
+
+        response = jsonify(token=bearer_token)
+        response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+        response.set_cookie('exp', str(getBearerJwtPayload(bearer_token)['exp']))
+        response.set_cookie('expires_in', str(getBearerJwtPayload(bearer_token)['expires_in']))
+
+        response.set_cookie('user', str(getBearerJwtPayload(bearer_token)['user']))
+
+        return response
 
 
     # Questions Questions Questions Questions Questions Questions Questions Questions
@@ -239,36 +253,34 @@ def api_routes(app):
             contents = request.json['contents']
             d_created = datetime.datetime.now()
 
-            con = sqlite3.connect(DATABASE_PATH)
-            cur = con.cursor()
+            new_record = Question(u_id, title, contents, d_created)
+            db.session.add(new_record)
+            db.session.commit()
 
-            cur.execute("INSERT INTO questions (user_id,title,contents,date_created) VALUES (?,?,?,?)",
-                        (u_id, title, contents, d_created))
 
-            con.commit()
-            con.close()
             return jsonify(succeed=True)
         elif request.method == "GET":
-            con = sqlite3.connect(DATABASE_PATH)
-            con.row_factory = sqlite3.Row
+            
+            fetched_questions = db.session.query(Question).all()
 
-            cur = con.cursor()
+            questions_response = dict()
+            questions_response['data'] = []
 
-            if request.args.__contains__('user_id'):
-                cur.execute(
-                    "select * from questions where user_id = " + request.args['user_id'])
-            else:
-                cur.execute("select * from questions")
+            for question in fetched_questions:
+                print(question)
+                question_dict = {
+                    'user_id': question.user_id,
+                    'title': question.title,
+                    'contents': question.contents,
+                    'date_created': question.date_created
+                }
+                questions_response['data'].append(question_dict)
 
-            rows = cur.fetchall()
-            response = dict()
-            response['data'] = []
-
-            for row in rows:
-                response['data'].append(dict(row))
-
-            con.close()
-            return jsonify(response)
+            print(questions_response)
+            response = jsonify(questions_response)
+            print(response)
+            print(response.status_code)
+            return response
 
 def api_auth(app):
     def api_auth_decorator(func):
@@ -277,17 +289,20 @@ def api_auth(app):
 
             bearer_token = request.headers.get('Authorization')
 
+            print(bearer_token)
+
             if not bearer_token:
                 return jsonify({'message' : 'Token is missing'}), 401
-            
+            print('Past 1')
             if bool(re.search('^Bearer\s+(.*)', bearer_token)):
                 token = bearer_token.replace('Bearer ', '')
             else:
                 return jsonify({'message' : 'Bearer Token is invalid'}), 401
-
+            print('Past 2')
 
             try:
                 jwt.decode(token, app.config['SECRET_KEY'], algorithms="HS256")
+                print('Past 3')
                 return func(*args, **kwargs)
             except:
                 return jsonify({'message': 'Bearer Token is invalid'}), 401
@@ -303,31 +318,40 @@ def cookie_auth(app):
             cookie_token = request.cookies.get('bt')
 
             if not cookie_token:
-                return redirect('/login'), 200
+                return redirect(url_for('index'))
 
             bearer_token = str(base64.b64decode(cookie_token).decode())
 
             if not bearer_token:
-                return redirect('/login'), 200
+                return redirect(url_for('index'))
 
             if bool(re.search('^Bearer\s+(.*)', bearer_token)):
                 token = bearer_token.replace('Bearer ', '')
             else:
-                return redirect('/login'), 200
+                return redirect(url_for('index'))
 
             try:
                 jwt.decode(token, app.config['SECRET_KEY'], algorithms="HS256")
                 return func(*args, **kwargs)
             except:
-                return redirect('/login'), 200
+                return redirect(url_for('index'))         
+
         return decorated
     return view_auth_decorator
+
+
+def getBearerJwtPayload(bearer_jwt):
+    print(bearer_jwt.replace('Bearer ', '').split('.')[1])
+    print(base64.b64decode(bearer_jwt.replace('Bearer ', '').split('.')[1] + '==').decode())
+    return json.loads(str(base64.b64decode(bearer_jwt.replace('Bearer ', '').split('.')[1] + '==').decode()))
 
 def config(app, test_config):
 
     app.config.from_mapping(
         SECRET_KEY='developmentsecretkey',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+        SQLALCHEMY_DATABASE_URI='sqlite:///flask_app/database/database.db',
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
 
     if test_config is None:
@@ -347,7 +371,7 @@ def config(app, test_config):
 def init_db(app):
     with app.app_context():
         db = get_db()
-        with app.open_resource('./flask/database/schema.sql', mode='r') as f:
+        with app.open_resource('./flask_app/database/schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
