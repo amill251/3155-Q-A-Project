@@ -1,4 +1,6 @@
 __pycache__/
 /flask/__pycache__/
-flask/database/database.db
+flask_app/database/database.db
+/flask_app/database/database.db
+database.db
 env
