@@ -6,6 +6,7 @@ from sqlite3.dbapi2 import Date
 import datetime
 import hmac
 import hashlib
+from typing import Dict
 from flask import Flask, app, g, request, jsonify, redirect, url_for
 from flask import render_template
 import sqlite3
@@ -167,12 +168,15 @@ def api_routes(app):
 
 
         if user_profile['_password'] == signature:
-            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)}, app.config['SECRET_KEY'], algorithm="HS256")
+            token_expires = 30
+            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
             response = jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
             base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
             response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
-            response.set_cookie('exp', str(json.loads(str(base64.b64decode(bearer_token.replace('Bearer ', '').split('.')[1]).decode()))['exp']))
+            response.set_cookie('exp', str(getBearerJwtPayload(bearer_token)['exp']))
+            response.set_cookie('expires_in', str(getBearerJwtPayload(bearer_token)['expires_in']))
+            response.set_cookie('user', str(getBearerJwtPayload(bearer_token)['user']))
             return response
         else:
             return jsonify(succeed=False, message='Incorrect Password')
@@ -208,11 +212,14 @@ def api_routes(app):
 
 
         if user_profile['_password'] == signature:
-            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)}, app.config['SECRET_KEY'], algorithm="HS256")
+            token_expires = 30
+            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
             response = jsonify(succeed=True, token=bearer_token)
             base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
             response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+            response.set_cookie('exp', str(getBearerJwtPayload(bearer_token))['exp'])
+            response.set_cookie('user', str(getBearerJwtPayload(bearer_token))['user'])
             return response
         else:
             return jsonify(succeed=False, message='Incorrect Password')
@@ -225,8 +232,20 @@ def api_routes(app):
         cookie_token = request.cookies.get('bt')
 
         bearer_token = str(base64.b64decode(cookie_token).decode())
+        token_expires = 30
 
-        return jsonify(token=bearer_token)
+        bearer_token = 'Bearer ' + jwt.encode({'user': getBearerJwtPayload(bearer_token)['user'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
+        
+        base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
+
+        response = jsonify(token=bearer_token)
+        response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+        response.set_cookie('exp', str(getBearerJwtPayload(bearer_token)['exp']))
+        response.set_cookie('expires_in', str(getBearerJwtPayload(bearer_token)['expires_in']))
+
+        response.set_cookie('user', str(getBearerJwtPayload(bearer_token)['user']))
+
+        return response
 
 
     # Questions Questions Questions Questions Questions Questions Questions Questions
@@ -320,9 +339,16 @@ def cookie_auth(app):
                 jwt.decode(token, app.config['SECRET_KEY'], algorithms="HS256")
                 return func(*args, **kwargs)
             except:
-                return redirect(url_for('index'))
+                return redirect(url_for('index'))         
+
         return decorated
     return view_auth_decorator
+
+
+def getBearerJwtPayload(bearer_jwt):
+    print(bearer_jwt.replace('Bearer ', '').split('.')[1])
+    print(base64.b64decode(bearer_jwt.replace('Bearer ', '').split('.')[1] + '==').decode())
+    return json.loads(str(base64.b64decode(bearer_jwt.replace('Bearer ', '').split('.')[1] + '==').decode()))
 
 def config(app, test_config):
 

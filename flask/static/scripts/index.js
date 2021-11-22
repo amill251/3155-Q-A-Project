@@ -66,6 +66,9 @@ function cookiesExpired() {
     let cookies = {}
     document.cookie.split(';').forEach((cookie) => {
         let re = /[=]+/;
+        if(cookie.length == 0) {
+            return
+        }
         let index = cookie.match(re).index
         
         if(parseInt(cookie.substring(index + 1, cookie.length))) {
@@ -83,4 +86,22 @@ function cookiesExpired() {
     } else {
         return true;
     }
+}
+
+function getCookies() {
+    let cookies = {}
+    document.cookie.split(';').forEach((cookie) => {
+        let re = /[=]+/;
+        if(cookie.length == 0) {
+            return
+        }
+        let index = cookie.match(re).index
+        
+        if(parseInt(cookie.substring(index + 1, cookie.length))) {
+            cookies[cookie.substring(0, index).replace(' ', '')] = parseInt(cookie.substring(index + 1, cookie.length));
+        } else {
+            cookies[cookie.substring(0, index).replace(' ', '')] = cookie.substring(index + 1, cookie.length);
+        }
+    });
+    return cookies;
 }
