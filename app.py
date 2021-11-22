@@ -13,6 +13,8 @@ import sqlite3
 import datetime
 import jwt
 from functools import wraps
+# from .flask.models.models import User as User
+# from .flask.database.database import db
 
 DATABASE_PATH = './flask/database/database.db'
 
@@ -26,6 +28,9 @@ def create_app(test_config=None):
 
     config(app, test_config)
     init_db(app)
+    # db.init_app(app)
+    # with app.app_context():
+    #     db.create_all()
     page_routes(app)
     api_routes(app)
 
@@ -135,7 +140,18 @@ def api_routes(app):
 
         con.commit()
         con.close()
-        return jsonify(succeed=True, message='User ' + str(_uname) + ' created successfully')
+        response = jsonify(succeed=True, message='User ' + str(_uname) + ' created successfully')
+        token_expires = 30
+        bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
+
+        response = jsonify(succeed=True, message='User ' + str(_uname) + ' logged in successfully')
+        base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
+        response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
+        response.set_cookie('exp', str(getBearerJwtPayload(bearer_token)['exp']))
+        response.set_cookie('expires_in', str(getBearerJwtPayload(bearer_token)['expires_in']))
+        response.set_cookie('user', str(getBearerJwtPayload(bearer_token)['user']))
+        
+        return response
 
 
     @app.route("/api/users/login", methods=["POST"])
@@ -355,6 +371,8 @@ def config(app, test_config):
     app.config.from_mapping(
         SECRET_KEY='developmentsecretkey',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+        SQLALCHEMY_DATABASE_URI=DATABASE_PATH,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
 
     if test_config is None:
