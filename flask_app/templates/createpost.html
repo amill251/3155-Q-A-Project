@@ -12,18 +12,21 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="{{ url_for('static',filename='scripts/index.js') }}"></script>
     <script src="{{ url_for('static',filename='scripts/question.js') }}"></script>
-  <title>Flask Overflow</title>
+  <title>QnA Ask Question</title>
 </head>
 
 <body class="bg-light">
     <nav class="navbar navbar-dark bg-dark">
-        <span class="navbar-brand mb-0 h1">Flask Overflow</span>
+      <span class="navbar-brand mb-0 h1">Flask Overflow</span>
         <ul class="nav nav-pills">
           <li class="nav-item">
-            <a class="nav-link" href="/feed">Feed Page</a>
+            <a class="nav-link" href="#" onclick="route('/feed')">Feed Page</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Create a Post</a>
+            <a class="nav-link disabled" aria-current="page" href="#">Ask Question</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="route('/profile')">Profile Page</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Logout</a>
