@@ -226,7 +226,7 @@ def api_routes(app):
         cookie_token = request.cookies.get('bt')
 
         bearer_token = str(base64.b64decode(cookie_token).decode())
-        token_expires = 30
+        token_expires = 3600
 
         bearer_token = 'Bearer ' + jwt.encode({'user': getBearerJwtPayload(bearer_token)['user'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
         
