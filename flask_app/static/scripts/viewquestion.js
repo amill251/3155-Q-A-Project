@@ -12,11 +12,17 @@ function loadQuestion() {
 
     getQuestion((response) => {
         console.log(response);
+        questionId = response.data[0].question_id;
+        userId = response.data[0].user_id;
 
-        if(response.data[0].user_id == getCookies().user_id) {
+        if(userId == getCookies().user_id) {
             $('#delete-button').show();
             $('#delete-button').click(() => {
-                deleteQuestion(response.data[0].question_id);
+                deleteQuestion(questionId);
+            })
+            $('#edit-button').show();
+            $('#edit-button').click(() => {
+                editQuestion(questionId);
             })
         }
         response.data.forEach(question => {
@@ -37,4 +43,8 @@ function deleteQuestion(questionId) {
     postQuestionDelete(() => {
         route('/');
     }, questionBody);
+}
+
+function editQuestion(questionId) {
+    route('/edit-question?question=' + questionId);
 }

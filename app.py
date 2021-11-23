@@ -60,6 +60,11 @@ def page_routes(app):
     @cookie_auth(app)
     def viewpost():
         return render_template("viewquestion.html")
+    
+    @app.route("/edit-question")
+    @cookie_auth(app)
+    def editpost():
+        return render_template("editquestion.html")
 
     @app.route("/profile")
     @cookie_auth(app)
@@ -176,7 +181,7 @@ def api_routes(app):
         cookie_token = request.cookies.get('bt')
 
         bearer_token = str(base64.b64decode(cookie_token).decode())
-        token_expires = 360000
+        token_expires = 3600
         
         fetched_user = db.session.query(
             User).filter_by(_username=getBearerJwtPayload(bearer_token)['user']).first()
@@ -289,6 +294,41 @@ def api_routes(app):
             return jsonify(succeed=True)
         else:
             return jsonify(succeed=False), 401
+
+    @app.route("/api/questions/edit", methods=["POST"])
+    @api_auth(app)
+    def editQuestion():  
+        if request.method == "POST":
+
+            q_id = request.json['question_id']
+            u_id = request.json['user_id']
+            title = request.json['title']
+            contents = request.json['contents']
+
+            bearer_token = request.headers['Authorization']
+
+
+            user_id = getBearerJwtPayload(bearer_token)['user_id']
+
+
+            if u_id is not user_id:
+                return jsonify(succeed=False), 401
+
+
+            question = Question.query.filter_by(question_id=q_id).first()
+
+            if not question:
+                    return jsonify(succeed=False, message="Question not found"), 404
+
+
+            if question.user_id is user_id:
+                question.title = title
+                question.contents = contents
+                db.session.commit()
+            else:
+                return jsonify(succeed=False), 401
+
+            return jsonify(succeed=True)
 
 def api_auth(app):
     def api_auth_decorator(func):
