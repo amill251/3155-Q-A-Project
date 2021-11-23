@@ -97,11 +97,13 @@ def api_routes(app):
         new_record = User(f_name, l_name, _uname, hash_pass)
         db.session.add(new_record)
         db.session.commit()
+        fetched_user = db.session.query(
+            User).filter_by(_username=_uname).first()
 
         response = jsonify(succeed=True, message='User ' +
                            str(_uname) + ' created successfully')
         token_expires = 3600
-        bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(
+        bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'user_id': fetched_user.user_id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(
             seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
         response = jsonify(succeed=True, message='User ' +
@@ -115,7 +117,15 @@ def api_routes(app):
             getBearerJwtPayload(bearer_token)['expires_in']))
         response.set_cookie('user', str(
             getBearerJwtPayload(bearer_token)['user']))
+        response.set_cookie('user_id', str(
+            getBearerJwtPayload(bearer_token)['user_id']))
 
+        return response
+
+    @app.route("/api/users/logout", methods=["POST"])
+    def logout_user():
+        response = jsonify(succeed=True)
+        response.set_cookie('bt', '', httponly=True)
         return response
 
     @app.route("/api/users/login", methods=["POST"])
@@ -138,7 +148,7 @@ def api_routes(app):
 
         if fetched_user._password == signature:
             token_expires = 3600
-            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(
+            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'user_id': fetched_user.user_id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(
                 seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
             response = jsonify(succeed=True, message='User ' +
@@ -152,6 +162,9 @@ def api_routes(app):
                 getBearerJwtPayload(bearer_token)['expires_in']))
             response.set_cookie('user', str(
                 getBearerJwtPayload(bearer_token)['user']))
+            response.set_cookie('user_id', str(
+                getBearerJwtPayload(bearer_token)['user_id']))
+
             return response
         else:
             return jsonify(succeed=False, message='Incorrect Password')
@@ -164,8 +177,11 @@ def api_routes(app):
 
         bearer_token = str(base64.b64decode(cookie_token).decode())
         token_expires = 360000
+        
+        fetched_user = db.session.query(
+            User).filter_by(_username=getBearerJwtPayload(bearer_token)['user']).first()
 
-        bearer_token = 'Bearer ' + jwt.encode({'user': getBearerJwtPayload(bearer_token)['user'], 'exp': datetime.datetime.utcnow(
+        bearer_token = 'Bearer ' + jwt.encode({'user': getBearerJwtPayload(bearer_token)['user'], 'user_id': fetched_user.user_id, 'exp': datetime.datetime.utcnow(
         ) + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
 
         base64_encoded_bearer = str(base64.b64encode(
@@ -177,9 +193,10 @@ def api_routes(app):
             getBearerJwtPayload(bearer_token)['exp']))
         response.set_cookie('expires_in', str(
             getBearerJwtPayload(bearer_token)['expires_in']))
-
         response.set_cookie('user', str(
             getBearerJwtPayload(bearer_token)['user']))
+        response.set_cookie('user_id', str(
+            getBearerJwtPayload(bearer_token)['user_id']))
 
         return response
 
@@ -188,7 +205,6 @@ def api_routes(app):
     @app.route("/api/questions", methods=["GET", "POST"])
     @api_auth(app)
     def questions():
-        print('Question was called')
         if request.method == "POST":
             print(request.json)
             u_id = request.json['user_id']
@@ -199,7 +215,6 @@ def api_routes(app):
             new_record = Question(u_id, title, contents, d_created)
             db.session.add(new_record)
             db.session.commit()
-
             return jsonify(succeed=True)
         elif request.method == "GET":
             print('Method was GET')
@@ -213,6 +228,9 @@ def api_routes(app):
 
                 question = db.session.query(Question).filter_by(
                     question_id=questionId).first()
+                
+                if not question:
+                    return jsonify(succeed=False, message="Question not found"), 404
 
                 question_dict = {
                     'question_id': question.question_id,
@@ -252,6 +270,25 @@ def api_routes(app):
 
                 return response
 
+    @app.route("/api/questions/delete", methods=["POST"])
+    @api_auth(app)
+    def deleteQuestion():  
+        delete_question_id = request.json['delete']
+
+        bearer_token = request.headers['Authorization']
+
+        user_id = getBearerJwtPayload(bearer_token)['user_id']
+        question = db.session.query(Question).filter_by(
+            question_id=delete_question_id).first()
+        if not question:
+            return jsonify(succeed=False, message="Question not found"), 404
+        print('Got the Question id')
+        if question.user_id is user_id:
+            Question.query.filter_by(question_id=delete_question_id).delete()
+            db.session.commit()
+            return jsonify(succeed=True)
+        else:
+            return jsonify(succeed=False), 401
 
 def api_auth(app):
     def api_auth_decorator(func):
