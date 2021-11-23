@@ -1,17 +1,16 @@
 $(document).ready(() => {
     let cookies = getCookies();
-    console.log(cookies);
-    console.log(cookies.user)
+
     $('#user-profile').text('Welcome Back ' + cookies.user);
     refreshAuth((response) => {
         jwtToken = response.token;
         loadPosts();
-    }); 
+    });
 });
 
 function loadPosts() {
     getQuestions((response) => {
-        console.log(response);
+
         response.data.forEach(questionResponse => {
             $('#feed-container').append(createHTMLPostTemplate(questionResponse));
         });
@@ -20,7 +19,7 @@ function loadPosts() {
 
 
 function createHTMLPostTemplate(questionData) {
-    console.log(questionData);
+
     let datetime = (new Date(questionData.date_created)).toLocaleString()
     let post = `
     <div class="d-flex justify-content-center row my-2">

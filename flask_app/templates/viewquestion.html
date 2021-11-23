@@ -30,31 +30,30 @@
   <nav class="navbar navbar-dark bg-dark">
     <span class="navbar-brand mb-0 h1">Flask Overflow</span>
     <ul class="nav nav-pills">
-      <li class="nav-item">
-        <a class="nav-link" href="#" onclick="route('/feed')">Feed Page</a>
+      <li class="nav-item me-1">
+        <a class="nav-link active" onclick="route('/feed')">Feed Page</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link disabled" aria-current="page" href="#">Ask Question</a>
+      <li class="nav-item me-1">
+        <a class="nav-link active" onclick="route('/ask-question')">Ask Question</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" onclick="route('/profile')">Profile Page</a>
+      <li class="nav-item me-1">
+        <a class="nav-link active" onclick="route('/profile')">Profile Page</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Logout</a>
-      </li>
+      <li class="nav-item me-1">
+        <a class="nav-link active" href="#">Logout</a>
     </ul>
   </nav>
-  <div class="container" style="margin-bottom: 20%;">
+  <div class="container" style="margin-bottom: 15%;">
     <div class="justify-content-center">
       <div class="row">
         <div class="col-12">
           <div class="m-4">
             <h1 class="question-title">This is my question?</h1>
             <hr>
-            <span><em>Timestamp</em></span>
+            <span><em class="q-timestamp">Timestamp</em></span>
           </div>
           <div class="card">
-            <div class="card-body" style="background-color: rgba(167, 73, 73, 0.329);">
+            <div class="card-body" id="question-body" style="background-color: rgba(167, 73, 73, 0.329);">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic nesciunt esse fuga harum consequatur, officia
               soluta unde, consectetur facilis culpa ipsum corrupti voluptates nostrum asperiores porro fugiat animi
               deserunt adipisci.
