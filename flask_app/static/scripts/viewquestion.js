@@ -3,18 +3,20 @@ $(document).ready(() => {
     refreshAuth((response) => {
         jwtToken = response.token;
         loadQuestion();
-    }); 
+    });
 });
 
 function loadQuestion() {
 
     console.log(location.search);
-    
+
     getQuestion((response) => {
         console.log(response);
         response.data.forEach(question => {
-            console.log(question)
-            // $('#feed-container').append(createHTMLPostTemplate(questionResponse));
+            console.log(question.contents);
+            $('.question-title').html(question.title);
+            $('#question-body').html(question.contents);
+            $('.q-timestamp').html(question.date_created);
         });
     }, location.search)
 }
