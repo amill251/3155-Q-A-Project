@@ -6,7 +6,6 @@ from sqlite3.dbapi2 import Date
 import datetime
 import hmac
 import hashlib
-from typing import Dict
 from flask import Flask, app, g, request, jsonify, redirect, url_for
 from flask import render_template
 import sqlite3
@@ -56,6 +55,11 @@ def page_routes(app):
     @cookie_auth(app)
     def createpost():
         return render_template("createpost.html")
+
+    @app.route("/view-question")
+    @cookie_auth(app)
+    def viewpost():
+        return render_template("viewquestion.html")
       
 def api_routes(app):
     # Routes for Pages
@@ -66,44 +70,6 @@ def api_routes(app):
 
         return 'Okay'
 
-    # User User User User User User User User User User User User
-    @app.route("/api/users", methods=["GET", "POST"])
-    def users():
-        if request.method == "POST":
-            f_name = request.json['first_name']
-            l_name = request.json['last_name']
-            _uname = request.json['_username']
-            _pword = request.json['_password']
-
-            con = sqlite3.connect(DATABASE_PATH)
-            cur = con.cursor()
-
-            cur.execute("INSERT INTO users (first_name,last_name,_username,_password) VALUES (?,?,?,?)",
-                        (f_name, l_name, _uname, _pword))
-
-            con.commit()
-            con.close()
-            return jsonify(response='Success')
-        elif request.method == "GET":
-            con = sqlite3.connect(DATABASE_PATH)
-            con.row_factory = sqlite3.Row
-
-            cur = con.cursor()
-            cur.execute("select * from users")
-
-            rows = cur.fetchall()
-            response = dict()
-            response['data'] = []
-
-            for row in rows:
-                response['data'].append(dict(row))
-
-            con.close()
-            print(response)
-
-            _response = jsonify(response)
-            _response.headers.add("Access-Control-Allow-Origin", "*")
-            return _response
 
     @app.route("/api/users/create-account", methods=["POST"])
     def create_account():
@@ -176,48 +142,6 @@ def api_routes(app):
             return jsonify(succeed=False, message='Incorrect Password')
 
 
-    @app.route("/api/users/token", methods=["POST"])
-    def get_token():
-
-        _uname = request.json['_username']
-        _pword = request.json['_password']
-
-        con = sqlite3.connect(DATABASE_PATH)
-        con.row_factory = sqlite3.Row
-
-        cur = con.cursor()
-        cur.execute('select * from users where _username = "' +
-                    str(_uname) + '"')
-        rows = cur.fetchall()
-        user_profile = dict()
-        for row in rows:
-            user_profile = dict(row)
-
-        if not user_profile.__contains__('_username'):
-            return jsonify(succeed=False, message='User not found')
-
-        con.close()
-
-        hash_pass = bytes(str(_pword), 'utf-8')
-        secret = bytes(app.config['SECRET_KEY'], 'utf-8')
-
-        signature = str(base64.b64encode(
-            hmac.new(secret, hash_pass, digestmod=hashlib.sha256).digest()).decode())
-
-
-        if user_profile['_password'] == signature:
-            token_expires = 3600
-            bearer_token = 'Bearer ' + jwt.encode({'user': _uname, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
-
-            response = jsonify(succeed=True, token=bearer_token)
-            base64_encoded_bearer = str(base64.b64encode(str.encode(bearer_token)).decode())
-            response.set_cookie('bt' , base64_encoded_bearer, httponly = True)
-            response.set_cookie('exp', str(getBearerJwtPayload(bearer_token))['exp'])
-            response.set_cookie('user', str(getBearerJwtPayload(bearer_token))['user'])
-            return response
-        else:
-            return jsonify(succeed=False, message='Incorrect Password')
-
 
     @app.route("/api/refresh-token", methods=["GET"])
     @cookie_auth(app)
@@ -226,7 +150,7 @@ def api_routes(app):
         cookie_token = request.cookies.get('bt')
 
         bearer_token = str(base64.b64decode(cookie_token).decode())
-        token_expires = 3600
+        token_expires = 360000
 
         bearer_token = 'Bearer ' + jwt.encode({'user': getBearerJwtPayload(bearer_token)['user'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=token_expires), 'expires_in': token_expires}, app.config['SECRET_KEY'], algorithm="HS256")
         
@@ -246,6 +170,7 @@ def api_routes(app):
     @app.route("/api/questions", methods=["GET", "POST"])
     @api_auth(app)
     def questions():
+        print('Question was called')
         if request.method == "POST":
             print(request.json)
             u_id = request.json['user_id']
@@ -260,27 +185,55 @@ def api_routes(app):
 
             return jsonify(succeed=True)
         elif request.method == "GET":
-            
-            fetched_questions = db.session.query(Question).all()
+            print('Method was GET')
+            print(request.args)
+            if request.args.__contains__('question'):
+                print('Request has a json')
+                try:
+                    questionId = request.args['question']
+                except:
+                    return jsonify({'message': 'Question Body Invalid'}), 400
 
-            questions_response = dict()
-            questions_response['data'] = []
+                question = db.session.query(Question).filter_by(question_id=questionId).first()
 
-            for question in fetched_questions:
-                print(question)
                 question_dict = {
-                    'user_id': question.user_id,
-                    'title': question.title,
-                    'contents': question.contents,
-                    'date_created': question.date_created
-                }
+                        'question_id': question.question_id,
+                        'user_id': question.user_id,
+                        'title': question.title,
+                        'contents': question.contents,
+                        'date_created': question.date_created
+                    }
+
+                questions_response = dict()
+                questions_response['data'] = []
+
+
                 questions_response['data'].append(question_dict)
 
-            print(questions_response)
-            response = jsonify(questions_response)
-            print(response)
-            print(response.status_code)
-            return response
+                response = jsonify(questions_response)
+
+                return response
+            else:
+                print('Doesnt have a json')
+                fetched_questions = db.session.query(Question).all()
+
+                questions_response = dict()
+                questions_response['data'] = []
+
+                for question in fetched_questions:
+                    print(question)
+                    question_dict = {
+                        'question_id': question.question_id,
+                        'user_id': question.user_id,
+                        'title': question.title,
+                        'contents': question.contents,
+                        'date_created': question.date_created
+                    }
+                    questions_response['data'].append(question_dict)
+
+                response = jsonify(questions_response)
+
+                return response
 
 def api_auth(app):
     def api_auth_decorator(func):

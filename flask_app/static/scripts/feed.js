@@ -28,9 +28,10 @@ function createHTMLPostTemplate(questionData) {
     <div class="d-flex flex-column comment-section" id="myGroup" style="box-shadow: 0 2px 4px 0px rgba(0,0,0,0.16);">
         <div class="bg-white p-2">
         <div class="d-flex flex-row user-info">
+        <a href="view-question?question=` + questionData.question_id + `">
             <div class="d-flex flex-column justify-content-start ml-2"><span
                 class="d-block font-weight-bold name">` + questionData.title + `</span><span class="date text-black-50">Shared
-                publicly - ` + datetime + `</span></div>
+                publicly - ` + datetime + `</span></div></a>
         </div>
         <div class="mt-2">
             <p class="comment-text">` + questionData.contents + `</p>

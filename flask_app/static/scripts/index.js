@@ -8,16 +8,20 @@ function getQuestions(callback) {
     return requestAPI('/questions', 'GET', null, callback);
 }
 
+function getQuestion(callback, questionBody) {
+    return requestAPI('/questions' + questionBody, 'GET', null, callback);
+}
+
 function createQuestion(questionBody, callback) {
-    return requestAPI('/questions', 'POST', questionBody, callback);
+    return requestAPI('/questions', 'POST', JSON.stringify(questionBody), callback);
 }
 
 function postLogin(loginBody, callback) {
-    return requestAPI('/users/login', 'POST', loginBody, callback);
+    return requestAPI('/users/login', 'POST', JSON.stringify(loginBody), callback);
 }
 
 function postSignup(signupBody, callback) {
-    return requestAPI('/users/create-account', 'POST', signupBody, callback);
+    return requestAPI('/users/create-account', 'POST', JSON.stringify(signupBody), callback);
 }
 
 function refreshAuth(callback) {
@@ -29,6 +33,8 @@ function route(route) {
 }
 
 function requestAPI(endpoint, method, body, callback) {
+
+    console.log(body)
     let settings = {
         "url": "http://localhost:5000/api" + endpoint,
         "method": method,
@@ -37,11 +43,11 @@ function requestAPI(endpoint, method, body, callback) {
             "Content-Type": "application/json",
             "Authorization": jwtToken
         },
-        "data": JSON.stringify(body),
+        "data": body,
         "success": callback,
         "error": ((error) => {
             if(error.status == 401) {
-                route('/');
+                //route('/');
             }
         })
     };
