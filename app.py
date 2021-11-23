@@ -213,6 +213,11 @@ def api_routes(app):
         if request.method == "POST":
             print(request.json)
             u_id = request.json['user_id']
+            bearer_token = request.headers['Authorization']
+            user_id = getBearerJwtPayload(bearer_token)['user_id']
+            if u_id is not user_id:
+                return jsonify(succeed=False), 401
+                
             title = request.json['title']
             contents = request.json['contents']
             d_created = datetime.datetime.now()

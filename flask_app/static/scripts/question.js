@@ -7,7 +7,7 @@ $(document).ready(() => {
 function submitPost() {
     let title = $('#title-subject-post').val();
     let questionContents = $('#question-contents').val();
-    let userId = 1;
+    let userId = getCookies().user_id;
 
     let postBody = {
         "user_id" : userId,
