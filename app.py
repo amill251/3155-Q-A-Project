@@ -236,13 +236,17 @@ def api_routes(app):
                 
                 if not question:
                     return jsonify(succeed=False, message="Question not found"), 404
+                
+                user_name = db.session.query(User).filter_by(
+                    user_id=question.user_id).first()._username
 
                 question_dict = {
                     'question_id': question.question_id,
                     'user_id': question.user_id,
                     'title': question.title,
                     'contents': question.contents,
-                    'date_created': question.date_created
+                    'date_created': question.date_created,
+                    'username': user_name
                 }
 
                 questions_response = dict()
@@ -262,15 +266,20 @@ def api_routes(app):
 
                 for question in fetched_questions:
                     print(question)
+                    user_name = db.session.query(User).filter_by(
+                    user_id=question.user_id).first()._username
+                    print(user_name)
                     question_dict = {
                         'question_id': question.question_id,
                         'user_id': question.user_id,
                         'title': question.title,
                         'contents': question.contents,
-                        'date_created': question.date_created
+                        'date_created': question.date_created,
+                        'username': user_name
                     }
                     questions_response['data'].append(question_dict)
-
+                
+                print('End of response')
                 response = jsonify(questions_response)
 
                 return response
