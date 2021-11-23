@@ -31,6 +31,7 @@ function loadQuestion() {
             $('.question-title').html(question.title);
             $('#question-body').html(question.contents);
             $('.q-timestamp').html(question.date_created);
+            $('#user-asks').text(question.username + ' asks: ')
         });
     }, location.search)
 }
