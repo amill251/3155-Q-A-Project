@@ -2,175 +2,177 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/feedstyle.css') }}">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
-  <script src="{{ url_for('static',filename='scripts/index.js') }}"></script>
-  <script src="{{ url_for('static',filename='scripts/viewquestion.js') }}"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-    crossorigin="anonymous"></script>
-  <title>QnA Ask Question</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/feedstyle.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="{{ url_for('static',filename='scripts/index.js') }}"></script>
+    <script src="{{ url_for('static',filename='scripts/viewquestion.js') }}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <title>Flask Overflow</title>
 </head>
 
 <body class="bg-light">
-  <nav class="navbar navbar-dark bg-dark">
-    <span class="navbar-brand mb-0 h1">Flask Overflow</span>
-    <ul class="nav nav-pills">
-      <li class="nav-item me-1">
-        <a class="nav-link active" onclick="route('/feed')">Feed Page</a>
-      </li>
-      <li class="nav-item me-1">
-        <a class="nav-link active" onclick="route('/ask-question')">Ask Question</a>
-      </li>
-      <li class="nav-item me-1">
-        <a class="nav-link active" onclick="route('/profile')">Profile Page</a>
-      </li>
-      <li class="nav-item me-1">
-        <a class="nav-link active" href="#">Logout</a>
-    </ul>
-  </nav>
-  <div class="container" style="margin-bottom: 15%;">
-    <div class="justify-content-center">
-      <div class="row">
-        <div class="col-12">
-          <div class="m-4">
-            <h1 class="question-title">This is my question?</h1>
-            <hr>
-            <span><em class="q-timestamp">Timestamp</em></span>
-          </div>
-          <div class="card">
-            <div class="card-body" id="question-body" style="background-color: rgba(167, 73, 73, 0.329);">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic nesciunt esse fuga harum consequatur, officia
-              soluta unde, consectetur facilis culpa ipsum corrupti voluptates nostrum asperiores porro fugiat animi
-              deserunt adipisci.
-            </div>
-          </div>
-          <div class="accordion">
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="flush-q-headingOne">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#flush-q-collapseOne">
-                  Reply #1
-                </button>
-              </h2>
-              <div id="flush-q-collapseOne" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus odit facere voluptatem esse
-                    expedita non odio voluptas quos dolore vel, eos unde, maxime sequi quisquam eligendi, cumque itaque
-                    officiis distinctio?</p>
+    <nav class="navbar navbar-dark bg-dark">
+        <span class="navbar-brand mb-0 h1">Flask Overflow</span>
+        <ul class="nav nav-pills">
+            <li class="nav-item me-1">
+                <a class="nav-link active" onclick="route('/feed')">Feed Page</a>
+            </li>
+            <li class="nav-item me-1">
+                <a class="nav-link active" onclick="route('/ask-question')">Ask Question</a>
+            </li>
+            <li class="nav-item me-1">
+                <a class="nav-link active" onclick="route('/profile')">Profile Page</a>
+            </li>
+            <li class="nav-item me-1">
+                <a class="nav-link active" href="#" onclick="logout()">Logout</a>
+        </ul>
+    </nav>
+    <div class="container" style="margin-bottom: 18%;">
+        <div class="row">
+            <div class="col-12">
+                <div class="m-4">
+                    <h1 class="question-title">Loading...</h1>
+                    <hr>
+                    <span><em class="q-timestamp">Loading...</em></span>
                 </div>
-              </div>
-            </div>
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="flush-q-headingTwo">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                  data-bs-target="#flush-q-collapseTwo">
-                  Reply #2
-                </button>
-              </h2>
-              <div id="flush-q-collapseTwo" class="accordion-collapse collapse">
-                <div class="accordion-body">
-                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus odit facere voluptatem esse
-                    expedita non odio voluptas quos dolore vel, eos unde, maxime sequi quisquam eligendi, cumque itaque
-                    officiis distinctio?</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-5">
-            <div class="card">
-              <div class="card-header">
-                <div class="row">
-                  <div class="col-8">User#1</div>
-                  <div class="col-4 text-end">Timestamp</div>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="card mt-0">
-                  <div class="card-body" style="background-color: rgba(73, 167, 86, 0.329);">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic nesciunt esse fuga harum consequatur,
-                    officia soluta unde, consectetur facilis culpa ipsum corrupti voluptates nostrum asperiores porro
-                    fugiat animi deserunt adipisci.
-                  </div>
-                </div>
-                <div class="accordion">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header" id="flush-a-headingOne">
-                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#flush-a-collapseOne">
-                        Reply #1
-                      </button>
-                    </h2>
-                    <div id="flush-a-collapseOne" class="accordion-collapse collapse">
-                      <div class="accordion-body">
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus odit facere voluptatem esse
-                          expedita non odio voluptas quos dolore vel, eos unde, maxime sequi quisquam eligendi, cumque
-                          itaque officiis distinctio?</p>
-                      </div>
+                <div class="card">
+                    <div class="card-body" style="background-color: #fff;">
+                        <span class="d-flex justify-content-between mb-2"><h6>Question</h6><span><button id="edit-button" class="btn btn-secondary mr-3" style="display: none;">Edit Question</button><button id="delete-button" class="btn btn-danger" style="display: none;">Delete Question</button></span></span>
+                        <hr class="mt-0 mx-n3">
+                        <p id="question-body">
+                            loading...
+                        </p>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="row">
-                  <div class="col-8">User#2</div>
-                  <div class="col-4 text-end">Timestamp</div>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="card mt-0">
-                  <div class="card-body" style="background-color: rgba(73, 167, 86, 0.329);">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic nesciunt esse fuga harum consequatur,
-                    officia soluta unde, consectetur facilis culpa ipsum corrupti voluptates nostrum asperiores porro
-                    fugiat animi deserunt adipisci.
-                  </div>
-                </div>
-                <div class="accordion">
-                  <div class="accordion-item">
-                    <h2 class="accordion-header" id="flush-a-headingOne">
-                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#flush-a-collapseOne">
-                        Reply #1
-                      </button>
-                    </h2>
-                    <div id="flush-a-collapseOne" class="accordion-collapse collapse">
-                      <div class="accordion-body">
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus odit facere voluptatem esse
-                          expedita non odio voluptas quos dolore vel, eos unde, maxime sequi quisquam eligendi, cumque
-                          itaque officiis distinctio?</p>
-                      </div>
+                    <div class="pl-5">
+                        <h6 class="mb-n2">Replies</h6>
+                        <hr>
+                        <div>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus odit facere
+                                voluptatem
+                                esse
+                                expedita non odio voluptas quos dolore vel, eos unde, maxime sequi quisquam
+                                eligendi,
+                                cumque itaque
+                                officiis distinctio?</p>
+                        </div>
+                        <hr>
+                        <div>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus odit facere
+                                voluptatem
+                                esse
+                                expedita non odio voluptas quos dolore vel, eos unde, maxime sequi quisquam
+                                eligendi,
+                                cumque itaque
+                                officiis distinctio?</p>
+                        </div>
                     </div>
-                  </div>
                 </div>
-              </div>
+
+                <div class="mt-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-8">User#1</div>
+                                <div class="col-4 text-end">Timestamp</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="card mt-0">
+                                <div class="card-body" style="background-color: rgba(73, 167, 86, 0.329);">
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic nesciunt esse fuga
+                                    harum consequatur,
+                                    officia soluta unde, consectetur facilis culpa ipsum corrupti voluptates nostrum
+                                    asperiores porro
+                                    fugiat animi deserunt adipisci.
+                                </div>
+                            </div>
+                            <div class="accordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="flush-a-headingOne">
+                                        <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#flush-a-collapseOne">
+                                            Reply #1
+                                        </button>
+                                    </h2>
+                                    <div id="flush-a-collapseOne" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus
+                                                odit facere voluptatem esse
+                                                expedita non odio voluptas quos dolore vel, eos unde, maxime sequi
+                                                quisquam eligendi, cumque
+                                                itaque officiis distinctio?</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-8">User#2</div>
+                                <div class="col-4 text-end">Timestamp</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="card mt-0">
+                                <div class="card-body" style="background-color: rgba(73, 167, 86, 0.329);">
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic nesciunt esse fuga
+                                    harum consequatur,
+                                    officia soluta unde, consectetur facilis culpa ipsum corrupti voluptates nostrum
+                                    asperiores porro
+                                    fugiat animi deserunt adipisci.
+                                </div>
+                            </div>
+                            <div class="accordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="flush-a-headingOne">
+                                        <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#flush-a-collapseOne">
+                                            Reply #1
+                                        </button>
+                                    </h2>
+                                    <div id="flush-a-collapseOne" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus
+                                                odit facere voluptatem esse
+                                                expedita non odio voluptas quos dolore vel, eos unde, maxime sequi
+                                                quisquam eligendi, cumque
+                                                itaque officiis distinctio?</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fixed-bottom p-5 bg-dark">
+                    <div class="form-floating">
+                        <textarea class="form-control" placeholder="Answer me!" id="floatingTextarea2"
+                            style="height: 100px"></textarea>
+                        <label for="floatingTextarea2">Answer the issue!</label>
+                        <button type="submit" class="btn btn-primary mt-1">Submit</button>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="fixed-bottom m-5">
-            <div class="form-floating">
-              <textarea class="form-control" placeholder="Answer me!" id="floatingTextarea2"
-                style="height: 100px"></textarea>
-              <label for="floatingTextarea2">Answer the issue!</label>
-              <button type="submit" class="btn btn-primary mt-1">Submit</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
 </body>
 
 </html>

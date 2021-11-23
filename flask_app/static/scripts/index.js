@@ -12,6 +12,15 @@ function getQuestion(callback, questionBody) {
     return requestAPI('/questions' + questionBody, 'GET', null, callback);
 }
 
+function postQuestionDelete(callback, questionBody) {
+    return requestAPI('/questions/delete', 'POST', JSON.stringify(questionBody), callback);
+}
+
+function postQuestionEdit(callback, questionBody) {
+    return requestAPI('/questions/edit', 'POST', JSON.stringify(questionBody), callback);
+}
+
+
 function createQuestion(questionBody, callback) {
     return requestAPI('/questions', 'POST', JSON.stringify(questionBody), callback);
 }
@@ -32,6 +41,10 @@ function route(route) {
     window.location.replace(route)
 }
 
+function serverLogout(callback) {
+    return requestAPI('/users/logout', 'POST', null, callback);
+}
+
 function requestAPI(endpoint, method, body, callback) {
 
     console.log(body)
@@ -48,11 +61,20 @@ function requestAPI(endpoint, method, body, callback) {
         "error": ((error) => {
             if(error.status == 401) {
                 //route('/');
+            } else if (error.status == 404) {
+                route('/')
             }
         })
     };
 
     return $.ajax(settings).done();
+}
+
+function logout() {
+    deleteAllCookies();
+    serverLogout((() => {
+        route('/');
+    }));
 }
 
 function tokenExpired() {
@@ -110,4 +132,15 @@ function getCookies() {
         }
     });
     return cookies;
+}
+
+function deleteAllCookies() {
+    var cookies = document.cookie.split(";");
+
+    for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        var eqPos = cookie.indexOf("=");
+        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
 }
