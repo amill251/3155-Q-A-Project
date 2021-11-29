@@ -4,3 +4,4 @@ flask_app/database/database.db
 /flask_app/database/database.db
 database.db
 env
+venv
