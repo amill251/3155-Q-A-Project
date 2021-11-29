@@ -304,6 +304,7 @@ def api_routes(app):
         print('Got the Question id')
         if question.user_id is user_id:
             Question.query.filter_by(question_id=delete_question_id).delete()
+            Answer.query.filter_by(question_id=delete_question_id).delete()
             db.session.commit()
             return jsonify(succeed=True)
         else:
