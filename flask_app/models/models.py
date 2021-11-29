@@ -26,3 +26,16 @@ class Question(db.Model):
         self.title = title
         self.contents = contents
         self.date_created = date_created
+
+class Answer(db.Model):
+    answer_id = db.Column("answer_id", db.Integer, primary_key=True)
+    question_id = db.Column("question_id", db.Integer)
+    user_id = db.Column("user_id", db.Integer)
+    contents = db.Column("contents", db.String(4096))
+    date_created = db.Column("date_created", db.DateTime)
+
+    def __init__(self, question_id, user_id, contents, date_created):
+        self.question_id = question_id
+        self.user_id = user_id
+        self.contents = contents
+        self.date_created = date_created
