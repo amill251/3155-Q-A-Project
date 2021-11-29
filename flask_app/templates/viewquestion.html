@@ -59,7 +59,7 @@
                             loading...
                         </p>
                     </div>
-                    <div class="pl-5">
+                    <!-- <div class="pl-5">
                         <h6 class="mb-n2">Replies</h6>
                         <hr>
                         <div>
@@ -81,49 +81,12 @@
                                 cumque itaque
                                 officiis distinctio?</p>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
-                <div class="mt-5">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="row">
-                                <div class="col-8">User#1</div>
-                                <div class="col-4 text-end">Timestamp</div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="card mt-0">
-                                <div class="card-body" style="background-color: rgba(73, 167, 86, 0.329);">
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic nesciunt esse fuga
-                                    harum consequatur,
-                                    officia soluta unde, consectetur facilis culpa ipsum corrupti voluptates nostrum
-                                    asperiores porro
-                                    fugiat animi deserunt adipisci.
-                                </div>
-                            </div>
-                            <div class="accordion">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="flush-a-headingOne">
-                                        <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#flush-a-collapseOne">
-                                            Reply #1
-                                        </button>
-                                    </h2>
-                                    <div id="flush-a-collapseOne" class="accordion-collapse collapse">
-                                        <div class="accordion-body">
-                                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus
-                                                odit facere voluptatem esse
-                                                expedita non odio voluptas quos dolore vel, eos unde, maxime sequi
-                                                quisquam eligendi, cumque
-                                                itaque officiis distinctio?</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
+                <div class="mt-5" id="answer-container">
+                    
+                    <!-- <div class="card">
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-8">User#2</div>
@@ -160,14 +123,14 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="fixed-bottom p-5 bg-dark">
                     <div class="form-floating">
-                        <textarea class="form-control" placeholder="Answer me!" id="floatingTextarea2"
+                        <textarea class="form-control" placeholder="Answer me!" id="answer-question"
                             style="height: 100px"></textarea>
-                        <label for="floatingTextarea2">Answer the issue!</label>
-                        <button type="submit" class="btn btn-primary mt-1">Submit</button>
+                        <label for="answer-question">Answer the issue!</label>
+                        <button class="btn btn-primary mt-1" id="submit-answer">Submit Answer</button>
                     </div>
                 </div>
             </div>

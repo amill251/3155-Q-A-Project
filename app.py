@@ -12,7 +12,7 @@ import sqlite3
 import jwt
 from functools import wraps
 from flask_app.database.database import db
-from flask_app.models.models import User as User
+from flask_app.models.models import Answer, User as User
 from flask_app.models.models import Question as Question
 
 DATABASE_PATH = './flask_app/database/database.db'
@@ -320,8 +320,6 @@ def api_routes(app):
             contents = request.json['contents']
 
             bearer_token = request.headers['Authorization']
-
-
             user_id = getBearerJwtPayload(bearer_token)['user_id']
 
 
@@ -343,6 +341,52 @@ def api_routes(app):
                 return jsonify(succeed=False), 401
 
             return jsonify(succeed=True)
+
+
+    @app.route("/api/answers", methods=["GET", "POST"])
+    @api_auth(app)
+    def answers():
+        if request.method == "POST":
+            print('Answers was called')
+            bearer_token = request.headers['Authorization']
+            user_id = getBearerJwtPayload(bearer_token)['user_id']
+            q_id = request.json['question_id']
+            contents = request.json['contents']
+            d_created = datetime.datetime.now()
+
+            new_record = Answer(q_id, user_id, contents, d_created)
+            db.session.add(new_record)
+            db.session.commit()
+            return jsonify(succeed=True)
+        elif request.method == "GET":
+            questionId = request.args['question']
+            answers = db.session.query(Answer).filter_by(
+                    question_id=questionId).all()
+
+            answers_response = dict()
+            answers_response['data'] = []
+
+            for answer in answers:
+                user_name = db.session.query(User).filter_by(
+                    user_id=answer.user_id).first()._username
+
+                answer_dict = {
+                            'answer_id': answer.answer_id,
+                            'question_id': answer.question_id,
+                            'user_id': answer.user_id,
+                            'contents': answer.contents,
+                            'date_created': answer.date_created,
+                            'username': user_name
+                        }
+                
+                answers_response['data'].append(answer_dict)
+                
+            response = jsonify(answers_response)
+
+            return response
+
+        return 0
+
 
 def api_auth(app):
     def api_auth_decorator(func):

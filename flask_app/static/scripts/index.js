@@ -25,6 +25,14 @@ function createQuestion(questionBody, callback) {
     return requestAPI('/questions', 'POST', JSON.stringify(questionBody), callback);
 }
 
+function getAnswers(callback, questionBody) {
+    return requestAPI('/answers' + questionBody, 'GET', null, callback);
+}
+
+function createAnswer(answerBody, callback) {
+    return requestAPI('/answers', 'POST', JSON.stringify(answerBody), callback);
+}
+
 function postLogin(loginBody, callback) {
     return requestAPI('/users/login', 'POST', JSON.stringify(loginBody), callback);
 }
