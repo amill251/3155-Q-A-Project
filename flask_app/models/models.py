@@ -39,3 +39,22 @@ class Answer(db.Model):
         self.user_id = user_id
         self.contents = contents
         self.date_created = date_created
+
+class AnswerVote(db.Model):
+    
+    answer_id = db.Column("answer_id", db.Integer, primary_key=True)
+    user_id = db.Column("user_id", db.Integer, primary_key=True)
+    vote_id = db.Column("vote_id", db.Integer)
+
+    def __init__(self, answer_id, user_id, vote_id):
+        self.answer_id = answer_id
+        self.user_id = user_id
+        self.vote_id = vote_id
+
+class Vote(db.Model):
+    vote_id = db.Column("vote_id", db.Integer, primary_key=True)
+    vote_name = db.Column("vote_name", db.String(64))
+
+    def __init__(self, vote_id, vote_name):
+        self.vote_id = vote_id
+        self.vote_name = vote_name

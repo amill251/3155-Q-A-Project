@@ -14,6 +14,8 @@ from functools import wraps
 from flask_app.database.database import db
 from flask_app.models.models import Answer, User as User
 from flask_app.models.models import Question as Question
+from flask_app.models.models import AnswerVote as AnswerVote
+from flask_app.models.models import Vote as Vote
 
 DATABASE_PATH = './flask_app/database/database.db'
 
@@ -360,6 +362,8 @@ def api_routes(app):
             db.session.commit()
             return jsonify(succeed=True)
         elif request.method == "GET":
+            bearer_token = request.headers['Authorization']
+            user_id = getBearerJwtPayload(bearer_token)['user_id']
             questionId = request.args['question']
             answers = db.session.query(Answer).filter_by(
                     question_id=questionId).all()
@@ -370,6 +374,20 @@ def api_routes(app):
             for answer in answers:
                 user_name = db.session.query(User).filter_by(
                     user_id=answer.user_id).first()._username
+                
+                
+                total_votes = {
+                    'upvotes': AnswerVote.query.filter_by(answer_id=answer.answer_id, vote_id=1).count(),
+                    'downvotes': AnswerVote.query.filter_by(answer_id=answer.answer_id, vote_id=2).count()
+                }
+
+                user_vote = 'novote'
+
+                test_vote = Vote.query.join(AnswerVote, AnswerVote.vote_id==Vote.vote_id).filter_by(answer_id=answer.answer_id, user_id=user_id).first()
+
+                if test_vote is not None:
+                    user_vote = test_vote.vote_name
+
 
                 answer_dict = {
                             'answer_id': answer.answer_id,
@@ -377,7 +395,11 @@ def api_routes(app):
                             'user_id': answer.user_id,
                             'contents': answer.contents,
                             'date_created': answer.date_created,
-                            'username': user_name
+                            'username': user_name,
+                            'votes': {
+                                'total_votes': total_votes['upvotes'] - total_votes['downvotes'],
+                                'uservotes': user_vote
+                            }
                         }
                 
                 answers_response['data'].append(answer_dict)
@@ -388,6 +410,84 @@ def api_routes(app):
 
         return 0
 
+    @app.route("/api/votes", methods=["GET", "POST"])
+    @api_auth(app)
+    def votes():
+        print('Got to vote')
+        if request.method == "POST":
+            print('Got to POST vote')
+            bearer_token = request.headers['Authorization']
+            print('Got 5555')
+            u_Id = getBearerJwtPayload(bearer_token)['user_id']
+            print('Got 7777')
+            a_Id = request.json['answer_id']
+            print('Got past answerId')
+            vote_name = request.json['vote_name']
+            print('Got 88888')
+            try:
+                current_vote = db.session.query(AnswerVote).filter_by(user_id=u_Id, answer_id=a_Id).first()
+            except Exception as e:
+                print(e)
+            current_vote = db.session.query(AnswerVote).filter_by(
+                    user_id=u_Id, answer_id=a_Id).first()
+
+            print(current_vote)
+            current_vote_id = db.session.query(Vote).filter_by(
+                    vote_name=vote_name).one().vote_id
+            print('got throught votes')
+            if current_vote is None:
+                print('In current vote 1')
+                print(a_Id)
+                print(u_Id)
+                print(AnswerVote.query.filter_by(answer_id=1, user_id=2).first())
+                print(AnswerVote.query.filter_by(answer_id=1, user_id=2, vote_id=2).first())
+                new_record = AnswerVote(a_Id, u_Id, current_vote_id)
+                # new_record = AnswerVote(2, 1, 2)
+                print(new_record)
+                print('In current vote 2')
+                db.session.add(new_record)
+                print(new_record)
+                print('In current vote 2.5')
+                try:
+                    db.session.commit()
+                except Exception as e:
+                    print(e)
+
+                print('In current vote 3')
+                return jsonify(success=True)
+            elif current_vote.vote_id is current_vote_id:
+                print('Current vote is Vote ID')
+                AnswerVote.query.filter_by(user_id=u_Id, answer_id=a_Id).delete()
+                db.session.commit()
+                return jsonify(success=True)
+            elif current_vote.vote_id is not current_vote_id:
+                print('Current is not Vote name')
+                current_vote.vote_id = current_vote_id
+                db.session.commit()
+                return jsonify(success=True)
+            return jsonify(success=False, message='Vote type not found')
+        elif request.method == "GET":
+            bearer_token = request.headers['Authorization']
+            u_Id = getBearerJwtPayload(bearer_token)['user_id']
+            q_Id = request.args['question']
+            question_votes = db.session.query(AnswerVote).join(Answer, Answer.answer_id==AnswerVote.answer_id).filter_by(question_id=q_Id)
+            votes_response = dict()
+            votes_response['data'] = []
+            for vote in question_votes:
+                print(vote.answer_id)
+                print(vote.user_id)
+                print(vote)
+                vote_dict = {
+                            'answer_id': vote.answer_id,
+                            'user_id': vote.user_id,
+                            'vote_id': vote.vote_id
+                        }
+                
+                votes_response['data'].append(vote_dict)
+
+            return jsonify(votes_response)
+
+        return 0
 
 def api_auth(app):
     def api_auth_decorator(func):

@@ -45,13 +45,18 @@ function refreshAuth(callback) {
     return requestAPI('/refresh-token', 'GET', null, callback);
 }
 
+function serverLogout(callback) {
+    return requestAPI('/users/logout', 'POST', null, callback);
+}
+
+function postVote(callback, voteBody) {
+    return requestAPI('/votes', 'POST', JSON.stringify(voteBody), callback);
+}
+
 function route(route) {
     window.location.replace(route)
 }
 
-function serverLogout(callback) {
-    return requestAPI('/users/logout', 'POST', null, callback);
-}
 
 function requestAPI(endpoint, method, body, callback) {
 

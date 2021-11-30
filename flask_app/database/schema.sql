@@ -43,12 +43,16 @@ CREATE TABLE IF NOT EXISTS Reactions  (
 );
 
 CREATE TABLE IF NOT EXISTS AnswerVote  (
-	answer_id INTEGER NOT NULL,
 	user_id INTEGER NOT NULL,
-	vote_id INTEGER NOT NULL
+	answer_id INTEGER NOT NULL,
+	vote_id INTEGER NOT NULL,
+	PRIMARY KEY (user_id, answer_id)
 );
 
 CREATE TABLE IF NOT EXISTS Vote  (
-	vote_id INTEGER NOT NULL,
+	vote_id INTEGER NOT NULL PRIMARY KEY,
 	vote_name TEXT NOT NULL
 );
+
+INSERT OR REPLACE INTO Vote (vote_id, vote_name) VALUES (1, 'upvote');
+INSERT OR REPLACE INTO Vote (vote_id, vote_name) VALUES (2, 'downvote');
