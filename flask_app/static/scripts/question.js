@@ -1,7 +1,7 @@
 $(document).ready(() => {
     refreshAuth((response) => {
         jwtToken = response.token;
-    }); 
+    });
 });
 
 function submitPost() {
@@ -10,13 +10,13 @@ function submitPost() {
     let userId = getCookies().user_id;
 
     let postBody = {
-        "user_id" : userId,
-        "title" : title,
-        "contents" : questionContents
+        "user_id": userId,
+        "title": title,
+        "contents": questionContents
     }
 
     createQuestion(postBody, ((response) => {
-        if(response.succeed) {
+        if (response.succeed) {
             window.location.replace("feed");
         } else {
             alert('There was an error with this Question.')
