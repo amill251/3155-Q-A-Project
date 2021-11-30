@@ -7,6 +7,7 @@ $(document).ready(() => {
     });
 });
 
+
 function loadQuestion() {
 
     console.log(location.search);
@@ -16,7 +17,7 @@ function loadQuestion() {
         questionId = response.data[0].question_id;
         userId = response.data[0].user_id;
 
-        if(userId == getCookies().user_id) {
+        if (userId == getCookies().user_id) {
             $('#delete-button').show();
             $('#delete-button').click(() => {
                 deleteQuestion(questionId);
@@ -44,7 +45,7 @@ function loadQuestion() {
 
 function deleteQuestion(questionId) {
     let questionBody = {
-        'delete' : questionId
+        'delete': questionId
     }
 
     postQuestionDelete(() => {
@@ -60,12 +61,12 @@ function submitAnswer(questionId) {
     let answerContents = $('#answer-question').val();
 
     let postBody = {
-        "question_id" : questionId,
-        "contents" : answerContents
+        "question_id": questionId,
+        "contents": answerContents
     }
 
     createAnswer(postBody, ((response) => {
-        if(response.succeed) {
+        if (response.succeed) {
             window.location.reload();
         } else {
             alert('There was an error with this Answer.')
