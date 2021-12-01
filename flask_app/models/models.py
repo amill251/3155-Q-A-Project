@@ -1,3 +1,4 @@
+import sqlalchemy
 from flask_app.database.database import db
 
 
@@ -58,3 +59,14 @@ class Vote(db.Model):
     def __init__(self, vote_id, vote_name):
         self.vote_id = vote_id
         self.vote_name = vote_name
+
+class Report(db.Model):
+    report_id = db.Column("report_id", db.Integer, primary_key=True)
+    user_id = db.Column("user_id", db.Integer)
+    question_id = db.Column("question_id", db.Integer)
+    answer_id = db.Column("answer_id", db.Integer)
+
+    def __init__(self, user_id, question_id, answer_id):
+        self.user_id = user_id
+        self.question_id = question_id
+        self.answer_id = answer_id 

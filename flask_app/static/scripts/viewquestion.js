@@ -16,6 +16,16 @@ function loadQuestion() {
         console.log(response);
         questionId = response.data[0].question_id;
         userId = response.data[0].user_id;
+        $('#report-button').click(() => {
+            reportQuestion(questionId);
+        });
+        console.log("------");
+        console.log(response.data[0]);
+        if (response.data[0].user_reported) {
+            console.log("Made it inside print statement");
+            $('#report-button').addClass("btn-reported");
+            $('#report-button').text("Reported");
+        }
 
         if (userId == getCookies().user_id) {
             $('#delete-button').show();
@@ -56,6 +66,29 @@ function deleteQuestion(questionId) {
 function editQuestion(questionId) {
     route('/edit-question?question=' + questionId);
 }
+
+function reportQuestion(questionId) {
+    let reportBody = {
+        "question_id": questionId,
+        "answer_id": null
+    }
+
+    postQuestionReport(() => {
+        location.reload();
+    }, reportBody);
+}
+
+function reportAnswer(questionId, answerId) {
+    let reportBody = {
+        "question_id": questionId,
+        "answer_id": answerId
+    }
+
+    postQuestionReport(() => {
+        location.reload();
+    }, reportBody);
+}
+
 
 function submitAnswer(questionId) {
     let answerContents = $('#answer-question').val();
@@ -108,9 +141,19 @@ function createHTMLAnswerTemplate(answerData) {
         upvote = ' btn-vote-light'
         downvote = ' btn-vote-light'
     }
+    let reportText = '';
+    let reportClass ='';
+
+    if (answerData.user_report) {
+        reportText = 'Reported';
+        reportClass = 'btn-reported';
+    } else {
+        reportText = 'Report Answer';
+    }
 
     let answer = `
     <div class="card mb-3">
+    <button class="btn btn-danger ` + reportClass + `" onclick="reportAnswer(` + answerData.question_id + ', ' + answerData.answer_id + `)">` + reportText + `</button>
         <div class="card-header">
             <div class="row">
                 <div class="col-8">` + answerData.username + `</div>

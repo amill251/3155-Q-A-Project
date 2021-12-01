@@ -12,7 +12,7 @@ import sqlite3
 import jwt
 from functools import wraps
 from flask_app.database.database import db
-from flask_app.models.models import Answer, User, Question, AnswerVote, Vote
+from flask_app.models.models import Answer, User, Question, AnswerVote, Vote, Report
 
 
 DATABASE_PATH = './flask_app/database/database.db'
@@ -227,6 +227,8 @@ def api_routes(app):
             db.session.commit()
             return jsonify(succeed=True)
         elif request.method == "GET":
+            bearer_token = request.headers['Authorization']
+            user_id = getBearerJwtPayload(bearer_token)['user_id']
             print('Method was GET')
             print(request.args)
             if request.args.__contains__('question'):
@@ -244,6 +246,12 @@ def api_routes(app):
 
                 user_name = db.session.query(User).filter_by(
                     user_id=question.user_id).first()._username
+                
+                user_reported = Report.query.filter_by(user_id=user_id, question_id=questionId, answer_id=None).first()
+                user_report = False
+
+                if user_reported is not None:
+                    user_report = True
 
                 question_dict = {
                     'question_id': question.question_id,
@@ -251,7 +259,8 @@ def api_routes(app):
                     'title': question.title,
                     'contents': question.contents,
                     'date_created': question.date_created,
-                    'username': user_name
+                    'username': user_name,
+                    'user_reported': user_report
                 }
 
                 questions_response = dict()
@@ -343,6 +352,7 @@ def api_routes(app):
             answers = db.session.query(Answer.answer_id).filter(Answer.question_id==delete_question_id).first()
             print(answers)
             db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
+            Report.query.filter_by(question_id=delete_question_id).delete()
             Answer.query.filter_by(question_id=delete_question_id).delete()
             Question.query.filter_by(question_id=delete_question_id).delete()
             print('Made it past subquery')
@@ -415,8 +425,15 @@ def api_routes(app):
                     'upvotes': AnswerVote.query.filter_by(answer_id=answer.answer_id, vote_id=1).count(),
                     'downvotes': AnswerVote.query.filter_by(answer_id=answer.answer_id, vote_id=2).count()
                 }
-
                 user_vote = 'novote'
+
+                user_reported = Report.query.filter_by(user_id=user_id, answer_id=answer.answer_id).first()
+                user_report = False
+
+                if user_reported is not None:
+                    user_report = True
+
+                print(user_reported)
 
                 test_vote = Vote.query.join(AnswerVote, AnswerVote.vote_id == Vote.vote_id).filter_by(
                     answer_id=answer.answer_id, user_id=user_id).first()
@@ -431,6 +448,7 @@ def api_routes(app):
                     'contents': answer.contents,
                     'date_created': answer.date_created,
                     'username': user_name,
+                    'user_report': user_report,
                     'votes': {
                         'total_votes': total_votes['upvotes'] - total_votes['downvotes'],
                         'uservotes': user_vote
@@ -529,6 +547,70 @@ def api_routes(app):
 
         return 0
 
+    @app.route("/api/report", methods=["GET", "POST"])
+    @api_auth(app)
+    def report():
+        if request.method == "POST":
+            bearer_token = request.headers['Authorization']
+            u_Id = getBearerJwtPayload(bearer_token)['user_id']
+            q_Id = request.json['question_id']
+            a_Id = request.json['answer_id']
+            current_report = db.session.query(Report).filter_by(
+                user_id=u_Id, question_id=q_Id, answer_id=a_Id).first()
+            if current_report is None:
+                new_record = Report(u_Id, q_Id, a_Id)
+                db.session.add(new_record)
+                try:
+                    db.session.commit()
+                except Exception as e:
+                    print(e)
+                last_report = db.session.query(Report).filter_by(
+                    question_id=q_Id, answer_id=a_Id).all()
+                if len(last_report) >= 3:
+                    if a_Id is None:
+                        question = db.session.query(Question).filter_by(question_id=q_Id).first()
+                        if not question:
+                            return jsonify(succeed=False, message="Question not found"), 404
+                        print('Got the Question id')
+                        answers = db.session.query(Answer.answer_id).filter(Answer.question_id==q_Id).first()
+                        print(answers)
+                        db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
+                        Report.query.filter_by(question_id=q_Id).delete()
+                        Answer.query.filter_by(question_id=q_Id).delete()
+                        Question.query.filter_by(question_id=q_Id).delete()
+                        print('Made it past subquery')
+
+                        db.session.commit()
+                    else:
+                        answers = db.session.query(Answer.answer_id).filter(Answer.answer_id==a_Id).first()
+                        print(answers)
+                        db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
+                        Report.query.filter_by(answer_id=a_Id).delete()
+                        Answer.query.filter_by(answer_id=a_Id).delete()
+
+                        db.session.commit()
+                return jsonify(success=True)
+            elif current_report is not None:
+                Report.query.filter_by(user_id=u_Id, question_id=q_Id, answer_id=a_Id).delete()
+                db.session.commit()
+                return jsonify(success=True)
+            return jsonify(success=True)
+        elif request.method == "GET":
+            bearer_token = request.headers['Authorization']
+            u_Id = getBearerJwtPayload(bearer_token)['user_id']
+            # q_Id = request.args['question']
+            reports = db.session.query(Report).all()
+            reports_response = dict()
+            reports_response['data'] = []
+            for report in reports:
+                report_dict = {
+                    'user_id': report.user_id,
+                    'question_id': report.question_id,
+                    'answer_id': report.answer_id
+                }
+                reports_response['data'].append(report_dict)
+            return jsonify(reports_response)
+        return jsonify(success=True)
 
 def api_auth(app):
     def api_auth_decorator(func):
