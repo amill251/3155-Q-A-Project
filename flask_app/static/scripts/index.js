@@ -4,8 +4,8 @@ function getUsers() {
     return requestAPI('/users', 'GET');
 }
 
-function getQuestions(callback) {
-    return requestAPI('/questions', 'GET', null, callback);
+function getQuestions(callback, queryBody) {
+    return requestAPI('/questions' + queryBody, 'GET', null, callback);
 }
 
 function getQuestion(callback, questionBody) {
@@ -72,7 +72,7 @@ function requestAPI(endpoint, method, body, callback) {
         "data": body,
         "success": callback,
         "error": ((error) => {
-            if(error.status == 401) {
+            if (error.status == 401) {
                 //route('/');
             } else if (error.status == 404) {
                 route('/')
@@ -91,12 +91,12 @@ function logout() {
 }
 
 function tokenExpired() {
-    if(!jwtToken) {
+    if (!jwtToken) {
         return true;
     }
 
-    let exp = JSON.parse(atob(jwtToken.replace('Bearer ', '').split('.')[1])).exp - Math.ceil(((new Date().getTime())/1000))
-    if(exp > 0) {
+    let exp = JSON.parse(atob(jwtToken.replace('Bearer ', '').split('.')[1])).exp - Math.ceil(((new Date().getTime()) / 1000))
+    if (exp > 0) {
         return false;
     } else {
         return true;
@@ -107,22 +107,22 @@ function cookiesExpired() {
     let cookies = {}
     document.cookie.split(';').forEach((cookie) => {
         let re = /[=]+/;
-        if(cookie.length == 0) {
+        if (cookie.length == 0) {
             return
         }
         let index = cookie.match(re).index
-        
-        if(parseInt(cookie.substring(index + 1, cookie.length))) {
+
+        if (parseInt(cookie.substring(index + 1, cookie.length))) {
             cookies[cookie.substring(0, index).replace(' ', '')] = parseInt(cookie.substring(index + 1, cookie.length));
         } else {
             cookies[cookie.substring(0, index).replace(' ', '')] = cookie.substring(index + 1, cookie.length);
         }
     });
-    if(!cookies.hasOwnProperty('exp')) {
+    if (!cookies.hasOwnProperty('exp')) {
         return true;
     }
-    let exp = cookies.exp - Math.ceil(((new Date().getTime())/1000))
-    if(exp > 0) {
+    let exp = cookies.exp - Math.ceil(((new Date().getTime()) / 1000))
+    if (exp > 0) {
         return false;
     } else {
         return true;
@@ -133,12 +133,12 @@ function getCookies() {
     let cookies = {}
     document.cookie.split(';').forEach((cookie) => {
         let re = /[=]+/;
-        if(cookie.length == 0) {
+        if (cookie.length == 0) {
             return
         }
         let index = cookie.match(re).index
-        
-        if(parseInt(cookie.substring(index + 1, cookie.length))) {
+
+        if (parseInt(cookie.substring(index + 1, cookie.length))) {
             cookies[cookie.substring(0, index).replace(' ', '')] = parseInt(cookie.substring(index + 1, cookie.length));
         } else {
             cookies[cookie.substring(0, index).replace(' ', '')] = cookie.substring(index + 1, cookie.length);

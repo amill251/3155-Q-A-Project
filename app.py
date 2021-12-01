@@ -11,6 +11,8 @@ from flask import render_template
 import sqlite3
 import jwt
 from functools import wraps
+
+from werkzeug.datastructures import Accept
 from flask_app.database.database import db
 from flask_app.models.models import Answer, User as User
 from flask_app.models.models import Question as Question
@@ -62,7 +64,7 @@ def page_routes(app):
     @cookie_auth(app)
     def viewpost():
         return render_template("viewquestion.html")
-    
+
     @app.route("/edit-question")
     @cookie_auth(app)
     def editpost():
@@ -184,7 +186,7 @@ def api_routes(app):
 
         bearer_token = str(base64.b64decode(cookie_token).decode())
         token_expires = 3600
-        
+
         fetched_user = db.session.query(
             User).filter_by(_username=getBearerJwtPayload(bearer_token)['user']).first()
 
@@ -219,7 +221,7 @@ def api_routes(app):
             user_id = getBearerJwtPayload(bearer_token)['user_id']
             if u_id is not user_id:
                 return jsonify(succeed=False), 401
-                
+
             title = request.json['title']
             contents = request.json['contents']
             d_created = datetime.datetime.now()
@@ -240,10 +242,10 @@ def api_routes(app):
 
                 question = db.session.query(Question).filter_by(
                     question_id=questionId).first()
-                
+
                 if not question:
                     return jsonify(succeed=False, message="Question not found"), 404
-                
+
                 user_name = db.session.query(User).filter_by(
                     user_id=question.user_id).first()._username
 
@@ -264,9 +266,19 @@ def api_routes(app):
                 response = jsonify(questions_response)
 
                 return response
-            else:
+
+            elif request.args.__contains__('query'):
+
+                print('Method was GET')
+                print(request.args)
+
                 print('Doesnt have a json')
-                fetched_questions = db.session.query(Question).all()
+                queryString = request.args['query']
+
+                search = "%{}%".format(queryString)
+
+                fetched_questions = Question.query.filter(
+                    Question.title.like(search)).all()
 
                 questions_response = dict()
                 questions_response['data'] = []
@@ -274,7 +286,7 @@ def api_routes(app):
                 for question in fetched_questions:
                     print(question)
                     user_name = db.session.query(User).filter_by(
-                    user_id=question.user_id).first()._username
+                        user_id=question.user_id).first()._username
                     print(user_name)
                     question_dict = {
                         'question_id': question.question_id,
@@ -285,7 +297,34 @@ def api_routes(app):
                         'username': user_name
                     }
                     questions_response['data'].append(question_dict)
-                
+
+                print('End of response')
+                response = jsonify(questions_response)
+
+                return response
+
+            else:
+                print('Doesnt have a json')
+                fetched_questions = db.session.query(Question).all()
+
+                questions_response = dict()
+                questions_response['data'] = []
+
+                for question in fetched_questions:
+                    print(question)
+                    user_name = db.session.query(User).filter_by(
+                        user_id=question.user_id).first()._username
+                    print(user_name)
+                    question_dict = {
+                        'question_id': question.question_id,
+                        'user_id': question.user_id,
+                        'title': question.title,
+                        'contents': question.contents,
+                        'date_created': question.date_created,
+                        'username': user_name
+                    }
+                    questions_response['data'].append(question_dict)
+
                 print('End of response')
                 response = jsonify(questions_response)
 
@@ -293,7 +332,7 @@ def api_routes(app):
 
     @app.route("/api/questions/delete", methods=["POST"])
     @api_auth(app)
-    def deleteQuestion():  
+    def deleteQuestion():
         delete_question_id = request.json['delete']
 
         bearer_token = request.headers['Authorization']
@@ -314,7 +353,7 @@ def api_routes(app):
 
     @app.route("/api/questions/edit", methods=["POST"])
     @api_auth(app)
-    def editQuestion():  
+    def editQuestion():
         if request.method == "POST":
 
             q_id = request.json['question_id']
@@ -325,16 +364,13 @@ def api_routes(app):
             bearer_token = request.headers['Authorization']
             user_id = getBearerJwtPayload(bearer_token)['user_id']
 
-
             if u_id is not user_id:
                 return jsonify(succeed=False), 401
-
 
             question = Question.query.filter_by(question_id=q_id).first()
 
             if not question:
-                    return jsonify(succeed=False, message="Question not found"), 404
-
+                return jsonify(succeed=False, message="Question not found"), 404
 
             if question.user_id is user_id:
                 question.title = title
@@ -344,7 +380,6 @@ def api_routes(app):
                 return jsonify(succeed=False), 401
 
             return jsonify(succeed=True)
-
 
     @app.route("/api/answers", methods=["GET", "POST"])
     @api_auth(app)
@@ -366,7 +401,7 @@ def api_routes(app):
             user_id = getBearerJwtPayload(bearer_token)['user_id']
             questionId = request.args['question']
             answers = db.session.query(Answer).filter_by(
-                    question_id=questionId).all()
+                question_id=questionId).all()
 
             answers_response = dict()
             answers_response['data'] = []
@@ -374,8 +409,7 @@ def api_routes(app):
             for answer in answers:
                 user_name = db.session.query(User).filter_by(
                     user_id=answer.user_id).first()._username
-                
-                
+
                 total_votes = {
                     'upvotes': AnswerVote.query.filter_by(answer_id=answer.answer_id, vote_id=1).count(),
                     'downvotes': AnswerVote.query.filter_by(answer_id=answer.answer_id, vote_id=2).count()
@@ -383,27 +417,27 @@ def api_routes(app):
 
                 user_vote = 'novote'
 
-                test_vote = Vote.query.join(AnswerVote, AnswerVote.vote_id==Vote.vote_id).filter_by(answer_id=answer.answer_id, user_id=user_id).first()
+                test_vote = Vote.query.join(AnswerVote, AnswerVote.vote_id == Vote.vote_id).filter_by(
+                    answer_id=answer.answer_id, user_id=user_id).first()
 
                 if test_vote is not None:
                     user_vote = test_vote.vote_name
 
-
                 answer_dict = {
-                            'answer_id': answer.answer_id,
-                            'question_id': answer.question_id,
-                            'user_id': answer.user_id,
-                            'contents': answer.contents,
-                            'date_created': answer.date_created,
-                            'username': user_name,
-                            'votes': {
-                                'total_votes': total_votes['upvotes'] - total_votes['downvotes'],
-                                'uservotes': user_vote
-                            }
-                        }
-                
+                    'answer_id': answer.answer_id,
+                    'question_id': answer.question_id,
+                    'user_id': answer.user_id,
+                    'contents': answer.contents,
+                    'date_created': answer.date_created,
+                    'username': user_name,
+                    'votes': {
+                        'total_votes': total_votes['upvotes'] - total_votes['downvotes'],
+                        'uservotes': user_vote
+                    }
+                }
+
                 answers_response['data'].append(answer_dict)
-                
+
             response = jsonify(answers_response)
 
             return response
@@ -425,22 +459,25 @@ def api_routes(app):
             vote_name = request.json['vote_name']
             print('Got 88888')
             try:
-                current_vote = db.session.query(AnswerVote).filter_by(user_id=u_Id, answer_id=a_Id).first()
+                current_vote = db.session.query(AnswerVote).filter_by(
+                    user_id=u_Id, answer_id=a_Id).first()
             except Exception as e:
                 print(e)
             current_vote = db.session.query(AnswerVote).filter_by(
-                    user_id=u_Id, answer_id=a_Id).first()
+                user_id=u_Id, answer_id=a_Id).first()
 
             print(current_vote)
             current_vote_id = db.session.query(Vote).filter_by(
-                    vote_name=vote_name).one().vote_id
+                vote_name=vote_name).one().vote_id
             print('got throught votes')
             if current_vote is None:
                 print('In current vote 1')
                 print(a_Id)
                 print(u_Id)
-                print(AnswerVote.query.filter_by(answer_id=1, user_id=2).first())
-                print(AnswerVote.query.filter_by(answer_id=1, user_id=2, vote_id=2).first())
+                print(AnswerVote.query.filter_by(
+                    answer_id=1, user_id=2).first())
+                print(AnswerVote.query.filter_by(
+                    answer_id=1, user_id=2, vote_id=2).first())
                 new_record = AnswerVote(a_Id, u_Id, current_vote_id)
                 # new_record = AnswerVote(2, 1, 2)
                 print(new_record)
@@ -457,7 +494,8 @@ def api_routes(app):
                 return jsonify(success=True)
             elif current_vote.vote_id is current_vote_id:
                 print('Current vote is Vote ID')
-                AnswerVote.query.filter_by(user_id=u_Id, answer_id=a_Id).delete()
+                AnswerVote.query.filter_by(
+                    user_id=u_Id, answer_id=a_Id).delete()
                 db.session.commit()
                 return jsonify(success=True)
             elif current_vote.vote_id is not current_vote_id:
@@ -470,7 +508,8 @@ def api_routes(app):
             bearer_token = request.headers['Authorization']
             u_Id = getBearerJwtPayload(bearer_token)['user_id']
             q_Id = request.args['question']
-            question_votes = db.session.query(AnswerVote).join(Answer, Answer.answer_id==AnswerVote.answer_id).filter_by(question_id=q_Id)
+            question_votes = db.session.query(AnswerVote).join(
+                Answer, Answer.answer_id == AnswerVote.answer_id).filter_by(question_id=q_Id)
             votes_response = dict()
             votes_response['data'] = []
             for vote in question_votes:
@@ -478,16 +517,17 @@ def api_routes(app):
                 print(vote.user_id)
                 print(vote)
                 vote_dict = {
-                            'answer_id': vote.answer_id,
-                            'user_id': vote.user_id,
-                            'vote_id': vote.vote_id
-                        }
-                
+                    'answer_id': vote.answer_id,
+                    'user_id': vote.user_id,
+                    'vote_id': vote.vote_id
+                }
+
                 votes_response['data'].append(vote_dict)
 
             return jsonify(votes_response)
 
         return 0
+
 
 def api_auth(app):
     def api_auth_decorator(func):
