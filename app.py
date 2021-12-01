@@ -11,13 +11,9 @@ from flask import render_template
 import sqlite3
 import jwt
 from functools import wraps
-
-from werkzeug.datastructures import Accept
 from flask_app.database.database import db
-from flask_app.models.models import Answer, User as User
-from flask_app.models.models import Question as Question
-from flask_app.models.models import AnswerVote as AnswerVote
-from flask_app.models.models import Vote as Vote
+from flask_app.models.models import Answer, User, Question, AnswerVote, Vote
+
 
 DATABASE_PATH = './flask_app/database/database.db'
 
@@ -344,8 +340,13 @@ def api_routes(app):
             return jsonify(succeed=False, message="Question not found"), 404
         print('Got the Question id')
         if question.user_id is user_id:
-            Question.query.filter_by(question_id=delete_question_id).delete()
+            answers = db.session.query(Answer.answer_id).filter(Answer.question_id==delete_question_id).first()
+            print(answers)
+            db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
             Answer.query.filter_by(question_id=delete_question_id).delete()
+            Question.query.filter_by(question_id=delete_question_id).delete()
+            print('Made it past subquery')
+
             db.session.commit()
             return jsonify(succeed=True)
         else:
