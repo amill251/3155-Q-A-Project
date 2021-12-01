@@ -99,30 +99,38 @@ function createHTMLAnswerTemplate(answerData) {
     let downvote = ''
 
     if (answerData.votes.uservotes == 'upvote') {
-        upvote = ' btn-success'
-        downvote = ' btn-light'
+        upvote = ' btn-vote-green'
+        downvote = ' btn-vote-light'
     } else if (answerData.votes.uservotes == 'downvote') {
-        upvote = ' btn-light'
-        downvote = ' btn-danger'
+        upvote = ' btn-vote-light'
+        downvote = ' btn-vote-red'
     } else {
-        upvote = ' btn-light'
-        downvote = ' btn-light'
+        upvote = ' btn-vote-light'
+        downvote = ' btn-vote-light'
     }
 
     let answer = `
     <div class="card mb-3">
-        <button class="btn m-2` + upvote + `" onclick="voteAnswer(` + answerData.answer_id + `,'upvote')">Upvote</button>
-        <button class="btn m-2` + downvote + `" onclick="voteAnswer( `+ answerData.answer_id + `,'downvote')">Downvote</button>
-        <div><h3>` + answerData.votes.total_votes + `</h3></div>
         <div class="card-header">
             <div class="row">
                 <div class="col-8">` + answerData.username + `</div>
                 <div class="col-4 text-end">` + datetime + `</div>
             </div>
         </div>
-        <div class="card-body">
-            <div class="card mt-0">
-                <div class="card-body" style="background-color: rgba(73, 167, 86, 0.329);">
+        <div class="card-body d-flex">
+            <div class="p-2"> 
+                <div class="btn-vote p-1` + upvote + `" onclick="voteAnswer(` + answerData.answer_id + `,'upvote')">
+                    <i class="fas fa-arrow-up" style="font-size: 20px;"></i>
+                </div>
+                <div style="height: 33.33%" class="p-1">
+                    <div class="m-0 d-flex justify-content-center align-items-center" style="line-height: 1.25rem;">` + answerData.votes.total_votes + `</div>
+                </div>
+                <div class="btn-vote p-1` + downvote + `" onclick="voteAnswer( `+ answerData.answer_id + `,'downvote')">
+                    <i class="fas fa-arrow-down" style="font-size: 20px;"></i>
+                </div>
+            </div>
+            <div class="card mt-0 w-100">
+                <div class="card-body">
                     ` + answerData.contents + `
                 </div>
             </div>
