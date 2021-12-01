@@ -1,21 +1,47 @@
-.h-100px {
-    height: 200px;
-}
-
-.row {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-.card {
-    box-shadow: 0 3px 6px 0px rgba(0,0,0,0.16);
-    padding: 15px 10px;
+body {
+    background: #eee
 }
 
 .w-45 {
     width: 45% !important;
 }
 
-.pl-3 {
-    padding-left: 1rem;
+
+.btn-vote {
+    height: 33.33%; border: 1px solid #aaa; border-radius: .25rem; box-shadow: 0 1px 2px 0px rgba(0,0,0,0.16);
+}
+
+.btn-vote:hover {
+    cursor: pointer;
+    box-shadow: 0 3px 6px 0px rgba(0,0,0,0.16);
+    color: white
+}
+
+.btn-vote-green {
+    background-color: green;
+    color: #eee;
+}
+
+.btn-vote-red {
+    background-color: red;
+    color: #eee;
+}
+
+.btn-vote-light {
+    background-color: white;
+    color: black;
+}
+
+.btn-vote-light:hover {
+    background-color: #eee;
+    color: black;
+}
+
+.btn-answer {
+    border: 1px solid #777; border-radius: .25rem
+}
+
+.btn-answer:hover {
+    cursor: pointer;
+    background-color: #444;
 }
