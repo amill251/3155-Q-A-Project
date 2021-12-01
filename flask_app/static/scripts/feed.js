@@ -14,7 +14,7 @@ function loadPosts() {
         response.data.forEach(questionResponse => {
             $('#feed-container').append(createHTMLPostTemplate(questionResponse));
         });
-    })
+    }, location.search)
 }
 
 
@@ -68,4 +68,10 @@ function createHTMLPostTemplate(questionData) {
     </div>
     `
     return post;
+}
+
+function searchQuestion() {
+    let search = $('#search-box').val();
+    route("/feed?query=" + search)
+
 }
