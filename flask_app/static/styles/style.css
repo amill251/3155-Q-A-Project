@@ -45,3 +45,8 @@ body {
     cursor: pointer;
     background-color: #444;
 }
+
+.btn-reported {
+    background-color: white!important;
+    color: red!important;
+}

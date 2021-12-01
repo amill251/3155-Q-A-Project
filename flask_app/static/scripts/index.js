@@ -16,6 +16,10 @@ function postQuestionDelete(callback, questionBody) {
     return requestAPI('/questions/delete', 'POST', JSON.stringify(questionBody), callback);
 }
 
+function postQuestionReport(callback, questionBody) {
+    return requestAPI('/report', 'POST', JSON.stringify(questionBody), callback);
+}
+
 function postQuestionEdit(callback, questionBody) {
     return requestAPI('/questions/edit', 'POST', JSON.stringify(questionBody), callback);
 }

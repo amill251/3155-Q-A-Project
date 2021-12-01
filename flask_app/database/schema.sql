@@ -54,5 +54,12 @@ CREATE TABLE IF NOT EXISTS Vote  (
 	vote_name TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS Report  (
+	report_id INTEGER PRIMARY KEY,
+	user_id INTEGER NOT NULL,
+	question_id INTEGER NOT NULL,
+	answer_id INTEGER
+);
+
 INSERT OR REPLACE INTO Vote (vote_id, vote_name) VALUES (1, 'upvote');
 INSERT OR REPLACE INTO Vote (vote_id, vote_name) VALUES (2, 'downvote');
