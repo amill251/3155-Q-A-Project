@@ -76,18 +76,44 @@ function submitAnswer(questionId) {
 }
 
 function loadAnswers() {
+    console.log('Running Load Answers');
     getAnswers((response) => {
-        response.data.forEach(answerResponse => {
+        console.log('Get answers callback');
+        $('#answer-container').empty();
+        console.log(response.data);
+        response.data.sort((a,b) => {
+            return b.votes.total_votes - a.votes.total_votes;
+        }).forEach(answerResponse => {
             $('#answer-container').append(createHTMLAnswerTemplate(answerResponse));
         });
+
+        console.log('Got to the end of the append');
     }, location.search)
+    console.log('Finished Load Answers');
 }
 
 function createHTMLAnswerTemplate(answerData) {
 
-    let datetime = (new Date(answerData.date_created)).toLocaleString()
+    let datetime = (new Date(answerData.date_created)).toLocaleString();
+    let upvote = '';
+    let downvote = ''
+
+    if (answerData.votes.uservotes == 'upvote') {
+        upvote = ' btn-success'
+        downvote = ' btn-light'
+    } else if (answerData.votes.uservotes == 'downvote') {
+        upvote = ' btn-light'
+        downvote = ' btn-danger'
+    } else {
+        upvote = ' btn-light'
+        downvote = ' btn-light'
+    }
+
     let answer = `
     <div class="card mb-3">
+        <button class="btn m-2` + upvote + `" onclick="voteAnswer(` + answerData.answer_id + `,'upvote')">Upvote</button>
+        <button class="btn m-2` + downvote + `" onclick="voteAnswer( `+ answerData.answer_id + `,'downvote')">Downvote</button>
+        <div><h3>` + answerData.votes.total_votes + `</h3></div>
         <div class="card-header">
             <div class="row">
                 <div class="col-8">` + answerData.username + `</div>
@@ -104,4 +130,14 @@ function createHTMLAnswerTemplate(answerData) {
     </div>
     `
     return answer;
+}
+
+function voteAnswer(answer_id, vote) {
+    let voteBody = {
+        "answer_id": answer_id,
+        "vote_name": vote
+    }
+    console.log('----------------------------------------');
+    console.log(voteBody);
+    postVote(location.reload(), voteBody);
 }
