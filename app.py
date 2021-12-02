@@ -66,11 +66,6 @@ def page_routes(app):
     def editpost():
         return render_template("editquestion.html")
 
-    @app.route("/profile")
-    @cookie_auth(app)
-    def profile():
-        return render_template("profile.html")
-
 
 def api_routes(app):
     # Routes for Pages
