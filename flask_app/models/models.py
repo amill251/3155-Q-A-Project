@@ -70,3 +70,23 @@ class Report(db.Model):
         self.user_id = user_id
         self.question_id = question_id
         self.answer_id = answer_id 
+
+class Reactions(db.Model):
+    reaction_id = db.Column("reaction_id", db.Integer, primary_key= True)
+    reaction_name = db.Column("reaction_name", db.Text)
+    
+    def __init__(self, reaction_name):
+        self.reaction_name = reaction_name
+
+class PostReactions(db.Model):
+    post_reaction_id = db.Column("post_reaction_id", db.Integer, primary_key= True)
+    reaction_id = db.Column("reaction_id", db.Integer)
+    user_id = db.Column("user_id", db.Integer)
+    question_id = db.Column("question_id", db.Integer)
+    answer_id = db.Column("answer_id", db.Integer)
+
+    def __init__(self, reaction_id, user_id, question_id, answer_id):
+        self.user_id = user_id
+        self.reaction_id = reaction_id
+        self.question_id = question_id
+        self.answer_id = answer_id

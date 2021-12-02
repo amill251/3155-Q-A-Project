@@ -31,15 +31,17 @@ CREATE TABLE IF NOT EXISTS Question  (
 	date_created DATETIME NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS QuestionReaction  (
-	question_id INTEGER PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS PostReaction  (
+	post_reaction_id INTEGER PRIMARY KEY,
+	question_id INTEGER NOT NULL,
+	answer_id INTEGER,
 	user_id INTEGER NOT NULL,
-	reaction_id INTEGER
+	reaction_id INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Reactions  (
 	reaction_id INTEGER PRIMARY KEY,
-	reaction_name INTEGER NOT NULL
+	reaction_name TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS AnswerVote  (
@@ -63,3 +65,9 @@ CREATE TABLE IF NOT EXISTS Report  (
 
 INSERT OR REPLACE INTO Vote (vote_id, vote_name) VALUES (1, 'upvote');
 INSERT OR REPLACE INTO Vote (vote_id, vote_name) VALUES (2, 'downvote');
+
+INSERT OR REPLACE INTO Reactions (reaction_id, reaction_name) VALUES (1, 'like');
+INSERT OR REPLACE INTO Reactions (reaction_id, reaction_name) VALUES (2, 'dislike');
+INSERT OR REPLACE INTO Reactions (reaction_id, reaction_name) VALUES (3, 'cry');
+INSERT OR REPLACE INTO Reactions (reaction_id, reaction_name) VALUES (4, 'angry');
+INSERT OR REPLACE INTO Reactions (reaction_id, reaction_name) VALUES (5, 'laugh');

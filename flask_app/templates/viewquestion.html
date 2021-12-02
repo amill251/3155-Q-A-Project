@@ -58,8 +58,8 @@
                             <h6 id="user-asks"></h6><span><button id="edit-button" class="btn btn-secondary mr-3"
                                     style="display: none;">Edit Question</button><button id="delete-button"
                                     class="btn btn-danger" style="display: none;">Delete Question</button>
-                                    <button id="report-button" class="btn btn-danger">Report Question</button>
-                                </span>
+                                <button id="report-button" class="btn btn-danger">Report Question</button>
+                            </span>
                         </span>
                         <hr class="mt-0 mx-n3">
                         <p id="question-body">
@@ -89,6 +89,28 @@
                                 officiis distinctio?</p>
                         </div>
                     </div> -->
+                    <div class="d-flex justify-content-between">
+                        <span id="question-like">
+                            <button class="btn btn-secondary mr-3">Like</button>
+                            <h4></h4>
+                        </span>
+                        <span id="question-dislike">
+                            <button class="btn btn-secondary mr-3">Dislike</button>
+                            <h4></h4>
+                        </span>
+                        <span id="question-cry">
+                            <button class="btn btn-secondary mr-3">Cry</button>
+                            <h4></h4>
+                        </span>
+                        <span id="question-angry">
+                            <button class="btn btn-secondary mr-3">Angry</button>
+                            <h4></h4>
+                        </span>
+                        <span id="question-laugh">
+                            <button class="btn btn-secondary mr-3">Laugh</button>
+                            <h4></h4>
+                        </span>
+                    </div>
                 </div>
 
                 <div class="mt-5" id="answer-container">
@@ -144,7 +166,8 @@
     <div id="collapse1" class="panel-collapse collapse">
         <div class="fixed-bottom px-5 pb-5 bg-dark">
             <div class="d-flex justify-content-end py-1 pr-2 mr-n5">
-                <a data-toggle="collapse" id='top-arrow' href="#collapse1"><i class="fas fa-chevron-down text-white p-2 btn-answer"></i></a>
+                <a data-toggle="collapse" id='top-arrow' href="#collapse1"><i
+                        class="fas fa-chevron-down text-white p-2 btn-answer"></i></a>
             </div>
             <div class="form-floating">
                 <textarea class="form-control" placeholder="Answer me!" id="answer-question"

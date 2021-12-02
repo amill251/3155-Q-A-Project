@@ -12,7 +12,7 @@ import sqlite3
 import jwt
 from functools import wraps
 from flask_app.database.database import db
-from flask_app.models.models import Answer, User, Question, AnswerVote, Vote, Report
+from flask_app.models.models import Answer, User, Question, AnswerVote, Vote, Report, PostReactions, Reactions
 
 
 DATABASE_PATH = './flask_app/database/database.db'
@@ -253,6 +253,34 @@ def api_routes(app):
                 if user_reported is not None:
                     user_report = True
 
+
+                userReact = Reactions.query.join(PostReactions, PostReactions.reaction_id == Reactions.reaction_id).filter_by(user_id=user_id, question_id=questionId, answer_id=None).first()
+
+                if userReact is None:
+                    user_reaction = None
+                else:
+                    user_reaction = userReact.reaction_name
+
+                print('---------hit1---------')
+                print(userReact)
+
+                test_dict = {
+                    'test': userReact
+                }
+
+                print(test_dict)
+
+                reactions = {
+                    'like': PostReactions.query.filter_by(question_id=questionId, answer_id=None, reaction_id=1).count(),
+                    'dislike': PostReactions.query.filter_by(question_id=questionId, answer_id=None, reaction_id=2).count(),
+                    'cry': PostReactions.query.filter_by(question_id=questionId, answer_id=None, reaction_id=3).count(),
+                    'angry': PostReactions.query.filter_by(question_id=questionId, answer_id=None, reaction_id=4).count(),
+                    'laugh': PostReactions.query.filter_by(question_id=questionId, answer_id=None, reaction_id=5).count(),
+                    'user_reaction': user_reaction
+                }
+
+                print('hit2')
+
                 question_dict = {
                     'question_id': question.question_id,
                     'user_id': question.user_id,
@@ -260,7 +288,8 @@ def api_routes(app):
                     'contents': question.contents,
                     'date_created': question.date_created,
                     'username': user_name,
-                    'user_reported': user_report
+                    'user_reported': user_report,
+                    'reactions': reactions
                 }
 
                 questions_response = dict()
@@ -353,6 +382,7 @@ def api_routes(app):
             print(answers)
             db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
             Report.query.filter_by(question_id=delete_question_id).delete()
+            PostReactions.query.filter_by(question_id=delete_question_id).delete()
             Answer.query.filter_by(question_id=delete_question_id).delete()
             Question.query.filter_by(question_id=delete_question_id).delete()
             print('Made it past subquery')
@@ -425,6 +455,23 @@ def api_routes(app):
                     'upvotes': AnswerVote.query.filter_by(answer_id=answer.answer_id, vote_id=1).count(),
                     'downvotes': AnswerVote.query.filter_by(answer_id=answer.answer_id, vote_id=2).count()
                 }
+
+                userReact = Reactions.query.join(PostReactions, PostReactions.reaction_id == Reactions.reaction_id).filter_by(user_id=user_id, question_id=questionId, answer_id=answer.answer_id).first()
+
+                if userReact is None:
+                    user_reaction = None
+                else:
+                    user_reaction = userReact.reaction_name
+
+                reactions = {
+                    'like': PostReactions.query.filter_by(question_id=questionId, answer_id=answer.answer_id, reaction_id=1).count(),
+                    'dislike': PostReactions.query.filter_by(question_id=questionId, answer_id=answer.answer_id, reaction_id=2).count(),
+                    'cry': PostReactions.query.filter_by(question_id=questionId, answer_id=answer.answer_id, reaction_id=3).count(),
+                    'angry': PostReactions.query.filter_by(question_id=questionId, answer_id=answer.answer_id, reaction_id=4).count(),
+                    'laugh': PostReactions.query.filter_by(question_id=questionId, answer_id=answer.answer_id, reaction_id=5).count(),
+                    'user_reaction': user_reaction
+                }
+
                 user_vote = 'novote'
 
                 user_reported = Report.query.filter_by(user_id=user_id, answer_id=answer.answer_id).first()
@@ -452,7 +499,8 @@ def api_routes(app):
                     'votes': {
                         'total_votes': total_votes['upvotes'] - total_votes['downvotes'],
                         'uservotes': user_vote
-                    }
+                    },
+                    'reactions': reactions
                 }
 
                 answers_response['data'].append(answer_dict)
@@ -576,6 +624,7 @@ def api_routes(app):
                         print(answers)
                         db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
                         Report.query.filter_by(question_id=q_Id).delete()
+                        PostReactions.query.filter_by(question_id=q_Id).delete()
                         Answer.query.filter_by(question_id=q_Id).delete()
                         Question.query.filter_by(question_id=q_Id).delete()
                         print('Made it past subquery')
@@ -586,6 +635,7 @@ def api_routes(app):
                         print(answers)
                         db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
                         Report.query.filter_by(answer_id=a_Id).delete()
+                        PostReactions.query.filter_by(answer_id=a_Id).delete()
                         Answer.query.filter_by(answer_id=a_Id).delete()
 
                         db.session.commit()
@@ -610,6 +660,69 @@ def api_routes(app):
                 }
                 reports_response['data'].append(report_dict)
             return jsonify(reports_response)
+        return jsonify(success=True)
+    
+    @app.route("/api/reaction", methods=["GET", "POST"])
+    @api_auth(app)
+    def react():
+        print('Got to react')
+        if request.method == "POST":
+            print('Got to reactPOST')
+            bearer_token = request.headers['Authorization']
+            u_Id = getBearerJwtPayload(bearer_token)['user_id']
+            a_Id = request.json['answer_id']
+            q_Id = request.json['question_id']
+            r_name = request.json['reaction_name']
+            current_reaction = db.session.query(PostReactions).filter_by(user_id=u_Id, answer_id=a_Id, question_id=q_Id).first()
+            current_reaction_id = db.session.query(Reactions).filter_by(reaction_name=r_name).one().reaction_id
+            print(current_reaction)
+            print(current_reaction_id)
+            if current_reaction is None:
+                # print('In current vote 1')
+                # print(a_Id)
+                # print(u_Id)
+                # print(AnswerVote.query.filter_by(
+                #     answer_id=1, user_id=2).first())
+                # print(AnswerVote.query.filter_by(
+                #     answer_id=1, user_id=2, vote_id=2).first())
+                new_record = PostReactions(current_reaction_id, u_Id, q_Id, a_Id)
+                # new_record = AnswerVote(2, 1, 2)
+                print(new_record)
+                print('In current vote 2')
+                db.session.add(new_record)
+                print(new_record)
+                print('In current vote 2.5')
+                try:
+                    db.session.commit()
+                except Exception as e:
+                    print(e)
+
+                print('In current vote 3')
+            elif current_reaction.reaction_id is current_reaction_id:
+                print('Current vote is Vote ID')
+                PostReactions.query.filter_by(
+                    user_id=u_Id, answer_id=a_Id, question_id=q_Id).delete()
+                db.session.commit()
+                return jsonify(success=True)
+            elif current_reaction.reaction_id is not current_reaction_id:
+                print('Current is not Vote name')
+                current_reaction.reaction_id = current_reaction_id
+                db.session.commit()
+                return jsonify(success=True)
+            return jsonify(success=True)
+        if request.method == "GET":
+            reactions = db.session.query(PostReactions).all()
+            reactions_response = dict()
+            reactions_response['data'] = []
+            for reaction in reactions:
+                reaction_dict = {
+                    'answer_id': reaction.answer_id,
+                    'user_id': reaction.user_id,
+                    'reaction_id': reaction.reaction_id,
+                    'question_id': reaction.question_id
+                }
+                reactions_response['data'].append(reaction_dict)
+            return jsonify(reactions_response)
         return jsonify(success=True)
 
 def api_auth(app):
