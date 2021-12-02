@@ -57,6 +57,10 @@ function postVote(callback, voteBody) {
     return requestAPI('/votes', 'POST', JSON.stringify(voteBody), callback);
 }
 
+function postReaction(callback, reactBody) {
+    return requestAPI('/reaction', 'POST', JSON.stringify(reactBody), callback);
+}
+
 function route(route) {
     window.location.replace(route)
 }

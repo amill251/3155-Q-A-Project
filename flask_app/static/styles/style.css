@@ -50,3 +50,8 @@ body {
     background-color: white!important;
     color: red!important;
 }
+
+.btn-reacted {
+    background-color: white!important;
+    color: green!important;
+}
