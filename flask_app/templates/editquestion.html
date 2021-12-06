@@ -18,6 +18,7 @@
     crossorigin="anonymous"></script>
   <script src="{{ url_for('static',filename='scripts/index.js') }}"></script>
   <script src="{{ url_for('static',filename='scripts/editquestion.js') }}"></script>
+  <script src="https://kit.fontawesome.com/57d9119a00.js" crossorigin="anonymous"></script>
   <title>Flask Overflow</title>
 </head>
 
@@ -30,9 +31,6 @@
       </li>
       <li class="nav-item me-1">
         <a class="nav-link disabled" onclick="route('/ask-question')">Ask Question</a>
-      </li>
-      <li class="nav-item me-1">
-        <a class="nav-link active" onclick="route('/profile')">Profile Page</a>
       </li>
       <li class="nav-item me-1">
         <a class="nav-link active" href="#" onclick="logout()">Logout</a>

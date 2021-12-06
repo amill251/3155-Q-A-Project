@@ -23,7 +23,7 @@ function loadQuestion() {
                     reactQuestion(questionId, reactionItem);
                 });
                 console.log(reactionItem);
-                $(`#question-${reactionItem} > h4`).text(response.data[0].reactions[reactionItem]);
+                $(`#question-${reactionItem} > .badge-success > p`).text(response.data[0].reactions[reactionItem]);
                 console.log(response.data[0].reactions[reactionItem]);
             } else {
                 if (response.data[0].reactions[reactionItem] != null) {
@@ -170,7 +170,8 @@ function createHTMLAnswerTemplate(answerData) {
 
     let answer = `
     <div class="card mb-3">
-    <button class="btn btn-danger ` + reportClass + `" onclick="reportAnswer(` + answerData.question_id + ', ' + answerData.answer_id + `)">` + reportText + `</button>
+    <button class="btn btn-danger ` + reportClass + `" onclick="reportAnswer(` + answerData.question_id + ', ' + answerData.answer_id + `)">` + reportText + ` <i
+    class="fas fa-flag"></i>` + `</button>
         <div class="card-header">
             <div class="row">
                 <div class="col-8">` + answerData.username + `</div>
@@ -197,24 +198,34 @@ function createHTMLAnswerTemplate(answerData) {
         </div>
         <div class="d-flex justify-content-between">
         <span id="question-like">
-            <button onclick="reactAnswer( ` + answerData.answer_id + `,${answerData.question_id},'like')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'like') { return 'btn-reacted' }; return ''; })() + `">Like</button>
-            <h4>${answerData.reactions['like']}</h4>
+            <button onclick="reactAnswer( ` + answerData.answer_id + `,${answerData.question_id},'like')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'like') { return 'btn-reacted' }; return ''; })() + `"><i class="fas fa-heart"></i></button>
+            <span style="height: 20px;" class="badge badge-success">
+            <p>${answerData.reactions['like']}</p>
+            </span>
         </span>
         <span id="question-dislike">
-            <button onclick="reactAnswer( ` + answerData.answer_id + `,${answerData.question_id},'dislike')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'dislike') { return 'btn-reacted' } return '' })() + `">Dislike</button>
-            <h4>${answerData.reactions['dislike']}</h4>
+            <button onclick="reactAnswer( ` + answerData.answer_id + `,${answerData.question_id},'dislike')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'dislike') { return 'btn-reacted' } return '' })() + `"><i class="fas fa-heart-broken"></i></button>
+            <span style="height: 20px;" class="badge badge-success">
+            <p>${answerData.reactions['dislike']}</p>
+            </span>
         </span>
         <span id="question-cry">
-            <button onclick="reactAnswer( ` + answerData.answer_id + `,${answerData.question_id},'cry')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'cry') { return 'btn-reacted' } return '' })() + `">Cry</button>
-            <h4>${answerData.reactions['cry']}</h4>
+            <button onclick="reactAnswer( ` + answerData.answer_id + `,${answerData.question_id},'cry')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'cry') { return 'btn-reacted' } return '' })() + `"><i class="fas fa-sad-tear"></i></button>
+            <span style="height: 20px;" class="badge badge-success">
+            <p>${answerData.reactions['cry']}</p>
+            </span>
         </span>
         <span id="question-angry">
-            <button onclick="reactAnswer( ` + answerData.answer_id + `,${answerData.question_id},'angry')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'angry') { return 'btn-reacted' } return '' })() + `">Angry</button>
-            <h4>${answerData.reactions['angry']}</h4>
+            <button onclick="reactAnswer( ` + answerData.answer_id + `,${answerData.question_id},'angry')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'angry') { return 'btn-reacted' } return '' })() + `"><i class="fas fa-angry"></i></button>
+            <span style="height: 20px;" class="badge badge-success">
+            <p>${answerData.reactions['angry']}</p>
+            </span>
         </span>
         <span id="question-laugh">
-            <button onclick="reactAnswer( ` + answerData.answer_id + `, ${answerData.question_id},'laugh')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'laugh') { return 'btn-reacted' } return '' })() + `">Laugh</button>
-            <h4>${answerData.reactions['laugh']}</h4>
+            <button onclick="reactAnswer( ` + answerData.answer_id + `, ${answerData.question_id},'laugh')" class="btn btn-secondary mr-3 ` + (() => { if (answerData.reactions['user_reaction'] == 'laugh') { return 'btn-reacted' } return '' })() + `"><i class="fas fa-laugh-beam"></i></button>
+            <span style="height: 20px;" class="badge badge-success">
+            <p>${answerData.reactions['laugh']}</p>
+            </span>
         </span>
     </div>
     </div>
