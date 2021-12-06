@@ -53,9 +53,11 @@
                     <div class="card-body" style="background-color: #fff;">
                         <span class="d-flex justify-content-between mb-2">
                             <h6 id="user-asks"></h6><span><button id="edit-button" class="btn btn-secondary mr-3"
-                                    style="display: none;">Edit Question</button><button id="delete-button"
-                                    class="btn btn-danger" style="display: none;">Delete Question</button>
-                                <button id="report-button" class="btn btn-danger">Report Question</button>
+                                    style="display: none;">Edit <i class="fas fa-edit"></i></button><button
+                                    id="delete-button" class="btn btn-danger" style="display: none;">Delete <i
+                                        class="fas fa-trash-alt"></i></button>
+                                <button id="report-button" class="btn btn-danger">Report <i
+                                        class="fas fa-flag"></i></button>
                             </span>
                         </span>
                         <hr class="mt-0 mx-n3">
@@ -88,24 +90,34 @@
                     </div> -->
                     <div class="d-flex justify-content-between">
                         <span id="question-like">
-                            <button class="btn btn-secondary mr-3">Like</button>
-                            <h4></h4>
+                            <button class="btn btn-secondary mr-3"><i class="fas fa-heart"></i></button>
+                            <span style="height: 20px;" class="badge badge-success">
+                                <p></p>
+                            </span>
                         </span>
                         <span id="question-dislike">
-                            <button class="btn btn-secondary mr-3">Dislike</button>
-                            <h4></h4>
+                            <button class="btn btn-secondary mr-3"><i class="fas fa-heart-broken"></i></button>
+                            <span style="height: 20px;" class="badge badge-success">
+                                <p></p>
+                            </span>
                         </span>
                         <span id="question-cry">
-                            <button class="btn btn-secondary mr-3">Cry</button>
-                            <h4></h4>
+                            <button class="btn btn-secondary mr-3"><i class="fas fa-sad-tear"></i></button>
+                            <span style="height: 20px;" class="badge badge-success">
+                                <p></p>
+                            </span>
                         </span>
                         <span id="question-angry">
-                            <button class="btn btn-secondary mr-3">Angry</button>
-                            <h4></h4>
+                            <button class="btn btn-secondary mr-3"><i class="fas fa-angry"></i></button>
+                            <span style="height: 20px;" class="badge badge-success">
+                                <p></p>
+                            </span>
                         </span>
                         <span id="question-laugh">
-                            <button class="btn btn-secondary mr-3">Laugh</button>
-                            <h4></h4>
+                            <button class="btn btn-secondary mr-3"><i class="fas fa-laugh-beam"></i></button>
+                            <span style="height: 20px;" class="badge badge-success">
+                                <p></p>
+                            </span>
                         </span>
                     </div>
                 </div>
@@ -170,7 +182,8 @@
                 <textarea class="form-control" placeholder="Answer me!" id="answer-question"
                     style="height: 100px"></textarea>
                 <label for="answer-question">Answer the issue!</label>
-                <button class="btn btn-primary mt-1" id="submit-answer">Submit Answer</button>
+                <button class="btn btn-primary mt-1" id="submit-answer">Answer <i
+                        class="fas fa-pencil-alt"></i></button>
             </div>
         </div>
     </div>

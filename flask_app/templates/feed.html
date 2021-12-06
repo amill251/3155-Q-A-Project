@@ -28,6 +28,7 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
     crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/57d9119a00.js" crossorigin="anonymous"></script>
   <title>QnA Feed</title>
 </head>
 
@@ -59,8 +60,9 @@
 
             <div class="d-flex">
               <input class="form-control mr-3" id="search-box" placeholder="Search Questions">
-              <button class="btn btn-primary" onclick="searchQuestion()">Search</button>
-              <button class="btn btn-primary ml-3" onclick="route('/feed')">Clear Search</button>
+              <button class="btn btn-primary" style="height: 38px;" onclick="searchQuestion()"><i
+                  class="fas fa-search"></i></button>
+              <button class="btn btn-primary ml-3" style="height: 38px;" onclick="route('/feed')">Clear</button>
             </div>
           </div>
         </div>
