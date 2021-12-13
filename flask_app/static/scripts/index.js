@@ -68,7 +68,7 @@ function route(route) {
 
 function requestAPI(endpoint, method, body, callback) {
 
-    console.log(body)
+    //console.log(body)
     let settings = {
         "url": "http://localhost:5000/api" + endpoint,
         "method": method,

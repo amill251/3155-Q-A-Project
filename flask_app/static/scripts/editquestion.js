@@ -7,10 +7,10 @@ $(document).ready(() => {
 
 function loadQuestion() {
 
-    console.log(location.search);
+    //console.log(location.search);
 
     getQuestion((response) => {
-        console.log(response);
+        //console.log(response);
         questionId = response.data[0].question_id;
         userId = response.data[0].user_id;
 

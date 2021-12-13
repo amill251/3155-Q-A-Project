@@ -19,7 +19,7 @@ DATABASE_PATH = './flask_app/database/database.db'
 
 
 def create_app(test_config=None):
-    # create and configure the app
+    
     app = Flask(__name__,
                 static_url_path='',
                 template_folder='./flask_app/templates',
@@ -37,7 +37,7 @@ def create_app(test_config=None):
 
 
 def page_routes(app):
-    # Routes for Pages
+    
     @app.route("/")
     def index():
         return render_template("login.html")
@@ -68,13 +68,12 @@ def page_routes(app):
 
 
 def api_routes(app):
-    # Routes for Pages
+    
     @app.route("/api", methods=["GET", "POST"])
     @api_auth(app)
-    def api():
-        # this is a placeholder for testing
+    def api():    
 
-        return 'Okay'
+        return '',200
 
     @app.route("/api/users/create-account", methods=["POST"])
     def create_account():
@@ -200,13 +199,13 @@ def api_routes(app):
 
         return response
 
-    # Questions Questions Questions Questions Questions Questions Questions Questions
+    
 
     @app.route("/api/questions", methods=["GET", "POST"])
     @api_auth(app)
     def questions():
         if request.method == "POST":
-            print(request.json)
+            
             u_id = request.json['user_id']
             bearer_token = request.headers['Authorization']
             user_id = getBearerJwtPayload(bearer_token)['user_id']
@@ -224,10 +223,10 @@ def api_routes(app):
         elif request.method == "GET":
             bearer_token = request.headers['Authorization']
             user_id = getBearerJwtPayload(bearer_token)['user_id']
-            print('Method was GET')
-            print(request.args)
+            
+            
             if request.args.__contains__('question'):
-                print('Request has a json')
+                
                 try:
                     questionId = request.args['question']
                 except:
@@ -254,16 +253,7 @@ def api_routes(app):
                 if userReact is None:
                     user_reaction = None
                 else:
-                    user_reaction = userReact.reaction_name
-
-                print('---------hit1---------')
-                print(userReact)
-
-                test_dict = {
-                    'test': userReact
-                }
-
-                print(test_dict)
+                    user_reaction = userReact.reaction_name   
 
                 reactions = {
                     'like': PostReactions.query.filter_by(question_id=questionId, answer_id=None, reaction_id=1).count(),
@@ -272,9 +262,7 @@ def api_routes(app):
                     'angry': PostReactions.query.filter_by(question_id=questionId, answer_id=None, reaction_id=4).count(),
                     'laugh': PostReactions.query.filter_by(question_id=questionId, answer_id=None, reaction_id=5).count(),
                     'user_reaction': user_reaction
-                }
-
-                print('hit2')
+                }      
 
                 question_dict = {
                     'question_id': question.question_id,
@@ -298,10 +286,6 @@ def api_routes(app):
 
             elif request.args.__contains__('query'):
 
-                print('Method was GET')
-                print(request.args)
-
-                print('Doesnt have a json')
                 queryString = request.args['query']
 
                 search = "%{}%".format(queryString)
@@ -313,10 +297,10 @@ def api_routes(app):
                 questions_response['data'] = []
 
                 for question in fetched_questions:
-                    print(question)
+                    
                     user_name = db.session.query(User).filter_by(
                         user_id=question.user_id).first()._username
-                    print(user_name)
+                    
                     question_dict = {
                         'question_id': question.question_id,
                         'user_id': question.user_id,
@@ -327,23 +311,23 @@ def api_routes(app):
                     }
                     questions_response['data'].append(question_dict)
 
-                print('End of response')
+                
                 response = jsonify(questions_response)
 
                 return response
 
             else:
-                print('Doesnt have a json')
+                
                 fetched_questions = db.session.query(Question).all()
 
                 questions_response = dict()
                 questions_response['data'] = []
 
                 for question in fetched_questions:
-                    print(question)
+                    
                     user_name = db.session.query(User).filter_by(
                         user_id=question.user_id).first()._username
-                    print(user_name)
+                    
                     question_dict = {
                         'question_id': question.question_id,
                         'user_id': question.user_id,
@@ -354,7 +338,7 @@ def api_routes(app):
                     }
                     questions_response['data'].append(question_dict)
 
-                print('End of response')
+                
                 response = jsonify(questions_response)
 
                 return response
@@ -371,16 +355,16 @@ def api_routes(app):
             question_id=delete_question_id).first()
         if not question:
             return jsonify(succeed=False, message="Question not found"), 404
-        print('Got the Question id')
+        
         if question.user_id is user_id:
             answers = db.session.query(Answer.answer_id).filter(Answer.question_id==delete_question_id).first()
-            print(answers)
+            
             db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
             Report.query.filter_by(question_id=delete_question_id).delete()
             PostReactions.query.filter_by(question_id=delete_question_id).delete()
             Answer.query.filter_by(question_id=delete_question_id).delete()
             Question.query.filter_by(question_id=delete_question_id).delete()
-            print('Made it past subquery')
+            
 
             db.session.commit()
             return jsonify(succeed=True)
@@ -421,7 +405,7 @@ def api_routes(app):
     @api_auth(app)
     def answers():
         if request.method == "POST":
-            print('Answers was called')
+            
             bearer_token = request.headers['Authorization']
             user_id = getBearerJwtPayload(bearer_token)['user_id']
             q_id = request.json['question_id']
@@ -475,7 +459,7 @@ def api_routes(app):
                 if user_reported is not None:
                     user_report = True
 
-                print(user_reported)
+                
 
                 test_vote = Vote.query.join(AnswerVote, AnswerVote.vote_id == Vote.vote_id).filter_by(
                     answer_id=answer.answer_id, user_id=user_id).first()
@@ -509,17 +493,17 @@ def api_routes(app):
     @app.route("/api/votes", methods=["GET", "POST"])
     @api_auth(app)
     def votes():
-        print('Got to vote')
+        
         if request.method == "POST":
-            print('Got to POST vote')
+            
             bearer_token = request.headers['Authorization']
-            print('Got 5555')
+            
             u_Id = getBearerJwtPayload(bearer_token)['user_id']
-            print('Got 7777')
+            
             a_Id = request.json['answer_id']
-            print('Got past answerId')
+            
             vote_name = request.json['vote_name']
-            print('Got 88888')
+            
             try:
                 current_vote = db.session.query(AnswerVote).filter_by(
                     user_id=u_Id, answer_id=a_Id).first()
@@ -528,40 +512,30 @@ def api_routes(app):
             current_vote = db.session.query(AnswerVote).filter_by(
                 user_id=u_Id, answer_id=a_Id).first()
 
-            print(current_vote)
+            
             current_vote_id = db.session.query(Vote).filter_by(
                 vote_name=vote_name).one().vote_id
-            print('got throught votes')
+            
             if current_vote is None:
-                print('In current vote 1')
-                print(a_Id)
-                print(u_Id)
-                print(AnswerVote.query.filter_by(
-                    answer_id=1, user_id=2).first())
-                print(AnswerVote.query.filter_by(
-                    answer_id=1, user_id=2, vote_id=2).first())
-                new_record = AnswerVote(a_Id, u_Id, current_vote_id)
-                # new_record = AnswerVote(2, 1, 2)
-                print(new_record)
-                print('In current vote 2')
+                
+                new_record = AnswerVote(a_Id, u_Id, current_vote_id)      
+                
                 db.session.add(new_record)
-                print(new_record)
-                print('In current vote 2.5')
+                        
                 try:
                     db.session.commit()
                 except Exception as e:
                     print(e)
-
-                print('In current vote 3')
+                
                 return jsonify(success=True)
             elif current_vote.vote_id is current_vote_id:
-                print('Current vote is Vote ID')
+                
                 AnswerVote.query.filter_by(
                     user_id=u_Id, answer_id=a_Id).delete()
                 db.session.commit()
                 return jsonify(success=True)
             elif current_vote.vote_id is not current_vote_id:
-                print('Current is not Vote name')
+                
                 current_vote.vote_id = current_vote_id
                 db.session.commit()
                 return jsonify(success=True)
@@ -574,10 +548,7 @@ def api_routes(app):
                 Answer, Answer.answer_id == AnswerVote.answer_id).filter_by(question_id=q_Id)
             votes_response = dict()
             votes_response['data'] = []
-            for vote in question_votes:
-                print(vote.answer_id)
-                print(vote.user_id)
-                print(vote)
+            for vote in question_votes:          
                 vote_dict = {
                     'answer_id': vote.answer_id,
                     'user_id': vote.user_id,
@@ -607,6 +578,7 @@ def api_routes(app):
                     db.session.commit()
                 except Exception as e:
                     print(e)
+
                 last_report = db.session.query(Report).filter_by(
                     question_id=q_Id, answer_id=a_Id).all()
                 if len(last_report) >= 3:
@@ -614,20 +586,19 @@ def api_routes(app):
                         question = db.session.query(Question).filter_by(question_id=q_Id).first()
                         if not question:
                             return jsonify(succeed=False, message="Question not found"), 404
-                        print('Got the Question id')
+                        
                         answers = db.session.query(Answer.answer_id).filter(Answer.question_id==q_Id).first()
-                        print(answers)
+                        
                         db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
                         Report.query.filter_by(question_id=q_Id).delete()
                         PostReactions.query.filter_by(question_id=q_Id).delete()
                         Answer.query.filter_by(question_id=q_Id).delete()
-                        Question.query.filter_by(question_id=q_Id).delete()
-                        print('Made it past subquery')
+                        Question.query.filter_by(question_id=q_Id).delete()      
 
                         db.session.commit()
                     else:
                         answers = db.session.query(Answer.answer_id).filter(Answer.answer_id==a_Id).first()
-                        print(answers)
+                        
                         db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
                         Report.query.filter_by(answer_id=a_Id).delete()
                         PostReactions.query.filter_by(answer_id=a_Id).delete()
@@ -643,7 +614,7 @@ def api_routes(app):
         elif request.method == "GET":
             bearer_token = request.headers['Authorization']
             u_Id = getBearerJwtPayload(bearer_token)['user_id']
-            # q_Id = request.args['question']
+            
             reports = db.session.query(Report).all()
             reports_response = dict()
             reports_response['data'] = []
@@ -660,9 +631,9 @@ def api_routes(app):
     @app.route("/api/reaction", methods=["GET", "POST"])
     @api_auth(app)
     def react():
-        print('Got to react')
+        
         if request.method == "POST":
-            print('Got to reactPOST')
+            
             bearer_token = request.headers['Authorization']
             u_Id = getBearerJwtPayload(bearer_token)['user_id']
             a_Id = request.json['answer_id']
@@ -670,37 +641,26 @@ def api_routes(app):
             r_name = request.json['reaction_name']
             current_reaction = db.session.query(PostReactions).filter_by(user_id=u_Id, answer_id=a_Id, question_id=q_Id).first()
             current_reaction_id = db.session.query(Reactions).filter_by(reaction_name=r_name).one().reaction_id
-            print(current_reaction)
-            print(current_reaction_id)
+            
             if current_reaction is None:
-                # print('In current vote 1')
-                # print(a_Id)
-                # print(u_Id)
-                # print(AnswerVote.query.filter_by(
-                #     answer_id=1, user_id=2).first())
-                # print(AnswerVote.query.filter_by(
-                #     answer_id=1, user_id=2, vote_id=2).first())
+
                 new_record = PostReactions(current_reaction_id, u_Id, q_Id, a_Id)
-                # new_record = AnswerVote(2, 1, 2)
-                print(new_record)
-                print('In current vote 2')
+      
                 db.session.add(new_record)
-                print(new_record)
-                print('In current vote 2.5')
+ 
                 try:
                     db.session.commit()
                 except Exception as e:
                     print(e)
-
-                print('In current vote 3')
+                
             elif current_reaction.reaction_id is current_reaction_id:
-                print('Current vote is Vote ID')
+                
                 PostReactions.query.filter_by(
                     user_id=u_Id, answer_id=a_Id, question_id=q_Id).delete()
                 db.session.commit()
                 return jsonify(success=True)
             elif current_reaction.reaction_id is not current_reaction_id:
-                print('Current is not Vote name')
+                
                 current_reaction.reaction_id = current_reaction_id
                 db.session.commit()
                 return jsonify(success=True)
@@ -727,20 +687,17 @@ def api_auth(app):
 
             bearer_token = request.headers.get('Authorization')
 
-            print(bearer_token)
-
             if not bearer_token:
                 return jsonify({'message': 'Token is missing'}), 401
-            print('Past 1')
+            
             if bool(re.search('^Bearer\s+(.*)', bearer_token)):
                 token = bearer_token.replace('Bearer ', '')
             else:
-                return jsonify({'message': 'Bearer Token is invalid'}), 401
-            print('Past 2')
+                return jsonify({'message': 'Bearer Token is invalid'}), 401  
 
             try:
                 jwt.decode(token, app.config['SECRET_KEY'], algorithms="HS256")
-                print('Past 3')
+                
                 return func(*args, **kwargs)
             except:
                 return jsonify({'message': 'Bearer Token is invalid'}), 401
@@ -779,9 +736,7 @@ def cookie_auth(app):
 
 
 def getBearerJwtPayload(bearer_jwt):
-    print(bearer_jwt.replace('Bearer ', '').split('.')[1])
-    print(base64.b64decode(bearer_jwt.replace(
-        'Bearer ', '').split('.')[1] + '==').decode())
+    
     return json.loads(str(base64.b64decode(bearer_jwt.replace('Bearer ', '').split('.')[1] + '==').decode()))
 
 
@@ -795,13 +750,12 @@ def config(app, test_config):
     )
 
     if test_config is None:
-        # load the instance config, if it exists, when not testing
+        
         app.config.from_pyfile('config.py', silent=True)
     else:
-        # load the test config if passed in
+        
         app.config.from_mapping(test_config)
 
-    # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
     except OSError:
