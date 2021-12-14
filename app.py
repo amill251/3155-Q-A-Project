@@ -356,15 +356,17 @@ def api_routes(app):
         if not question:
             return jsonify(succeed=False, message="Question not found"), 404
         
+
         if question.user_id is user_id:
-            answers = db.session.query(Answer.answer_id).filter(Answer.question_id==delete_question_id).first()
-            
-            db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
+            answers = db.session.query(Answer.answer_id).filter(Answer.question_id==delete_question_id).all()
+
+            for answer in answers:
+                db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answer)).delete()
+
             Report.query.filter_by(question_id=delete_question_id).delete()
             PostReactions.query.filter_by(question_id=delete_question_id).delete()
             Answer.query.filter_by(question_id=delete_question_id).delete()
             Question.query.filter_by(question_id=delete_question_id).delete()
-            
 
             db.session.commit()
             return jsonify(succeed=True)
@@ -586,10 +588,12 @@ def api_routes(app):
                         question = db.session.query(Question).filter_by(question_id=q_Id).first()
                         if not question:
                             return jsonify(succeed=False, message="Question not found"), 404
-                        
-                        answers = db.session.query(Answer.answer_id).filter(Answer.question_id==q_Id).first()
-                        
-                        db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answers)).delete()
+
+                        answers = db.session.query(Answer.answer_id).filter(Answer.question_id==q_Id).all()
+
+                        for answer in answers:
+                            db.session.query(AnswerVote).filter(AnswerVote.answer_id.in_(answer)).delete()
+
                         Report.query.filter_by(question_id=q_Id).delete()
                         PostReactions.query.filter_by(question_id=q_Id).delete()
                         Answer.query.filter_by(question_id=q_Id).delete()
