@@ -10,8 +10,11 @@ $(document).ready(() => {
 
 function loadPosts() {
     getQuestions((response) => {
-
-        response.data.forEach(questionResponse => {
+        response.data.sort((a, b) => {
+            timeA = (new Date(a.date_created)).getTime();
+            timeB = (new Date(b.date_created)).getTime();
+            return timeB - timeA;
+        }).forEach(questionResponse => {
             $('#feed-container').append(createHTMLPostTemplate(questionResponse));
         });
     }, location.search)
